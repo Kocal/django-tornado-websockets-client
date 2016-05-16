@@ -1,0 +1,36 @@
+{
+  "name": "django-tornado-websockets-client",
+  "version": "0.0.1",
+  "description": "Client-side library for django-tornado-websockets project",
+  "scripts": {
+    "test": "node_modules/karma/bin/karma start karma.conf.js --single-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kocal/django-tornado-websockets-client.git"
+  },
+  "keywords": [
+    "django",
+    "tornado",
+    "websockets",
+    "client",
+    "javascript"
+  ],
+  "author": "Hugo ALLIAUME <kocal@live.fr>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Kocal/django-tornado-websockets-client/issues"
+  },
+  "homepage": "https://github.com/Kocal/django-tornado-websockets-client#readme",
+  "devDependencies": {
+    "jasmine": "^2.4.1",
+    "jasmine-core": "^2.4.1",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^1.0.1",
+    "karma-firefox-launcher": "^1.0.0",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-opera-launcher": "^1.0.0",
+    "karma-safari-launcher": "^1.0.0"
+  }
+}
