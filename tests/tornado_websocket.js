@@ -2,19 +2,19 @@
  * Created by kocal on 17/05/16.
  */
 
-describe('Test for TornadoWebSocket class instances', function() {
+describe('Test for TornadoWebSocket class instances', function () {
 
-    it('`tws()` should be an instance of TornadoWebSocket', function() {
+    it('`tws()` should be an instance of TornadoWebSocket', function () {
         var ws = tws('/foo');
         expect(ws instanceof TornadoWebSocket).toBeTruthy()
     });
 
-    it('`TornadoWebSocket()` should be an instance of TornadoWebSocket', function() {
+    it('`TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
         var ws = TornadoWebSocket('/foo');
         expect(ws instanceof TornadoWebSocket).toBeTruthy()
     });
 
-    it('`new TornadoWebSocket()` should be an instance of TornadoWebSocket', function() {
+    it('`new TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
         var ws = new TornadoWebSocket('/foo');
         expect(ws instanceof TornadoWebSocket).toBeTruthy()
     });
@@ -23,10 +23,10 @@ describe('Test for TornadoWebSocket class instances', function() {
 
 describe('Tests for TornadoWebSocket class constructor', function () {
 
-    it('should raise a ReferenceError exception because there is no URL parameter', function () {
+    it('should raise a ReferenceError exception because there is no "path" parameter', function () {
         expect(function () {
             return new TornadoWebSocket
-        }).toThrowError(ReferenceError, 'You must pass "url" parameter during "TornadoWebSocket" instantiation.')
+        }).toThrowError(ReferenceError, 'You must pass "path" parameter during "TornadoWebSocket" instantiation.')
     });
 
     it('should be using default options', function () {
@@ -65,4 +65,16 @@ describe('Tests for TornadoWebSocket class constructor', function () {
             secure: true
         });
     });
+
+    it('should suffix path by "/"', function () {
+        var ws = new TornadoWebSocket('my_app');
+        expect(ws.path).toBe('/my_app');
+        expect(ws.path).not.toBe('my_app')
+    });
+
+    it('should not suffix path by "/"', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        expect(ws.path).toBe('/my_app');
+        expect(ws.path).not.toBe('//my_app')
+    })
 });

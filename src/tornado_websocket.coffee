@@ -1,28 +1,55 @@
-tws = (url, options) ->
-    new TornadoWebSocket url, options
+tws = (path, options) ->
+    new TornadoWebSocket path, options
 
 class TornadoWebSocket
     ###*
     # Initialize a new WebSocket object with given options.
-    # @param {string}  url             Url of a django-tornado-websockets application
+    # @param {string}  path            Url of a django-tornado-websockets application
     # @param {Object}  options         Object options
     # @param {string}  options.host    Host used for connection
     # @param {number}  options.port    Port user for connection
     # @param {boolean} options.secure  Using 'ws' or 'wss' protocol
     ###
-    constructor: (url, options) ->
+    constructor: (path, options) ->
+        if this not instanceof TornadoWebSocket
+            return new TornadoWebSocket path, options
 
-        if @ not instanceof TornadoWebSocket
-            return new TornadoWebSocket url, options
+        if path is undefined
+            throw new ReferenceError 'You must pass "path" parameter during "TornadoWebSocket" instantiation.'
 
-        throw new ReferenceError('You must pass "url" parameter during "TornadoWebSocket" instantiation.') if !url?
+        ###*
+        # WebSocket instance
+        # @type {WebSocket}
+        ###
+        @websocket = null
 
-        @url = url
-
+        ###*
+        # Configuration values
+        # @type {object}
+        # @private
+        ###
         @options = _.merge {
             host: 'localhost',
             port: 8000,
             secure: false
         }, options
 
-        return
+        ###*
+        # Path of a django-tornado-websockets application
+        # @type {string}
+        # @private
+        ###
+        @path = path.trim()
+        @path = if @path[0] isnt '/' then '/' + @path else @path
+
+        ###*
+        # Registered events
+        # @type {object}
+        # @private
+        ###
+        @events = {}
+
+        @connect()
+
+    connect: ->
+        @websocket = null
