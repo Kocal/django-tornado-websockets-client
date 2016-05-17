@@ -15,15 +15,13 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/*.js',
+            'dist/main.js',
             'tests/*.js'
         ],
 
 
         // list of files to exclude
-        exclude: [
-            'dist/*.min.js'
-        ],
+        exclude: [],
 
 
         // preprocess matching files before serving them to the browser

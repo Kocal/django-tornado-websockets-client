@@ -23,6 +23,7 @@ gulp.task('scripts', function () {
         .pipe(gulpif(/[.]coffee$/, coffee({ bare: true })))
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
+        .pipe(gulp.dest('dist/'))
         .pipe(concat('main.js'))
         .pipe(gulp.dest('dist/'))
         .pipe(rename({ suffix: '.min' }))
