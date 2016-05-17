@@ -2,7 +2,7 @@
  * Created by kocal on 17/05/16.
  */
 
-describe('Test for TornadoWebSocket class instances', function () {
+describe('TornadoWebSocket instances shortcuts', function () {
 
     it('`tws()` should be an instance of TornadoWebSocket', function () {
         var ws = tws('/foo');
@@ -14,6 +14,7 @@ describe('Test for TornadoWebSocket class instances', function () {
         expect(ws instanceof TornadoWebSocket).toBeTruthy()
     });
 
+    // In case of :^)
     it('`new TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
         var ws = new TornadoWebSocket('/foo');
         expect(ws instanceof TornadoWebSocket).toBeTruthy()
@@ -21,7 +22,7 @@ describe('Test for TornadoWebSocket class instances', function () {
 
 });
 
-describe('Tests for TornadoWebSocket class constructor', function () {
+describe('`TornadoWebSocket::constructor(path, options)', function () {
 
     it('should raise a ReferenceError exception because there is no "path" parameter', function () {
         expect(function () {
