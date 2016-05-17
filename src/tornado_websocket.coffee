@@ -4,11 +4,11 @@ tws = (url, options) ->
 class TornadoWebSocket
     ###*
     # Initialize a new WebSocket object with given options.
-    # @param {string}   url             Url of a django-tornado-websockets application
-    # @param {Object}   options         Object options
-    # @param {string}   options.host    Host used for connection
-    # @param {integer}  options.port    Port user for connection
-    # @param {bool}     options.secure  Using 'ws' or 'wss' protocol
+    # @param {string}  url             Url of a django-tornado-websockets application
+    # @param {Object}  options         Object options
+    # @param {string}  options.host    Host used for connection
+    # @param {number}  options.port    Port user for connection
+    # @param {boolean} options.secure  Using 'ws' or 'wss' protocol
     ###
     constructor: (url, options) ->
 
