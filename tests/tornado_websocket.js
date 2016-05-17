@@ -2,8 +2,27 @@
  * Created by kocal on 17/05/16.
  */
 
+describe('Test for TornadoWebSocket class instances', function() {
+
+    it('`tws()` should be an instance of TornadoWebSocket', function() {
+        var ws = tws('/foo');
+        expect(ws instanceof TornadoWebSocket).toBeTruthy()
+    });
+
+    it('`TornadoWebSocket()` should be an instance of TornadoWebSocket', function() {
+        var ws = TornadoWebSocket('/foo');
+        expect(ws instanceof TornadoWebSocket).toBeTruthy()
+    });
+
+    it('`new TornadoWebSocket()` should be an instance of TornadoWebSocket', function() {
+        var ws = new TornadoWebSocket('/foo');
+        expect(ws instanceof TornadoWebSocket).toBeTruthy()
+    });
+
+});
+
 describe('Tests for TornadoWebSocket class constructor', function () {
-    
+
     it('should raise a ReferenceError exception because there is no URL parameter', function () {
         expect(function () {
             return new TornadoWebSocket
