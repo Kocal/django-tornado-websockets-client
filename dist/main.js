@@ -16166,9 +16166,13 @@
         root._ = _;
     }
 }.call(this));
-var WebSocket;
+var TornadoWebSocket, tws;
 
-WebSocket = (function() {
+tws = function(url, options) {
+    return new TornadoWebSocket(url, options);
+};
+
+TornadoWebSocket = (function() {
 
     /**
      * Initialize a new WebSocket object with given options.
@@ -16178,9 +16182,12 @@ WebSocket = (function() {
      * @param {integer}  options.port    Port user for connection
      * @param {bool}     options.secure  Using 'ws' or 'wss' protocol
      */
-    function WebSocket(url, options) {
+    function TornadoWebSocket(url, options) {
+        if (!(this instanceof TornadoWebSocket)) {
+            return new TornadoWebSocket(url, options);
+        }
         if (url == null) {
-            throw new ReferenceError('You must pass "url" parameter during "WebSocket" instantiation');
+            throw new ReferenceError('You must pass "url" parameter during "TornadoWebSocket" instantiation.');
         }
         this.url = url;
         this.options = _.merge({
@@ -16191,6 +16198,6 @@ WebSocket = (function() {
         return;
     }
 
-    return WebSocket;
+    return TornadoWebSocket;
 
 })();

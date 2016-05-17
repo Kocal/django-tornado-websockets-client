@@ -1,4 +1,7 @@
-class WebSocket
+tws = (url, options) ->
+    new TornadoWebSocket url, options
+
+class TornadoWebSocket
     ###*
     # Initialize a new WebSocket object with given options.
     # @param {string}   url             Url of a django-tornado-websockets application
@@ -9,7 +12,10 @@ class WebSocket
     ###
     constructor: (url, options) ->
 
-        throw new ReferenceError('You must pass "url" parameter during "WebSocket" instantiation') if !url?
+        if @ not instanceof TornadoWebSocket
+            return new TornadoWebSocket url, options
+
+        throw new ReferenceError('You must pass "url" parameter during "TornadoWebSocket" instantiation.') if !url?
 
         @url = url
 
