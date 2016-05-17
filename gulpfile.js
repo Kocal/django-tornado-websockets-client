@@ -11,6 +11,7 @@ var coffee = require('gulp-coffee');
 var concat = require('gulp-concat');
 var jshint = require('gulp-jshint');
 var uglify = require('gulp-uglify');
+var prettify = require('gulp-jsbeautifier');
 
 gulp.task('scripts', function () {
     return gulp.src(['src/vendor/**/*.js', 'src/**/*.coffee'])
@@ -21,6 +22,10 @@ gulp.task('scripts', function () {
             }
         }))
         .pipe(gulpif(/[.]coffee$/, coffee({ bare: true })))
+        .pipe(prettify({
+            indent_size: 4,
+            indent_with_spaces: false
+        }))
         .pipe(jshint())
         .pipe(jshint.reporter('default'))
         .pipe(gulp.dest('dist/'))
