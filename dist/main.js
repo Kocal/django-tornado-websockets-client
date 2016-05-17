@@ -16216,6 +16216,13 @@ TornadoWebSocket = (function() {
         this.path = this.path[0] !== '/' ? '/' + this.path : this.path;
 
         /**
+         * Generated URL by path and configuration values
+         * @type {string}
+         * @private
+         */
+        this.url = this.getUrl();
+
+        /**
          * Registered events
          * @type {object}
          * @private
@@ -16226,6 +16233,12 @@ TornadoWebSocket = (function() {
 
     TornadoWebSocket.prototype.connect = function() {
         return this.websocket = null;
+    };
+
+    TornadoWebSocket.prototype.getUrl = function() {
+        var protocol;
+        protocol = this.options.secure ? 'wss' : 'ws';
+        return protocol + "://" + this.options.host + ":" + this.options.port + "/ws" + this.path;
     };
 
     return TornadoWebSocket;

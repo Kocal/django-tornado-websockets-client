@@ -43,6 +43,13 @@ class TornadoWebSocket
         @path = if @path[0] isnt '/' then '/' + @path else @path
 
         ###*
+        # Generated URL by path and configuration values
+        # @type {string}
+        # @private
+        ###
+        @url = @getUrl()
+
+        ###*
         # Registered events
         # @type {object}
         # @private
@@ -53,3 +60,8 @@ class TornadoWebSocket
 
     connect: ->
         @websocket = null
+
+    getUrl: ->
+        protocol = if @options.secure then 'wss' else 'ws'
+
+        return "#{protocol}://#{@options.host}:#{@options.port}/ws#{@path}"

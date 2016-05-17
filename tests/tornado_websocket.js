@@ -79,3 +79,36 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
         expect(ws.path).not.toBe('//my_app')
     })
 });
+
+describe('`TornadoWebSocket::getUrl()`', function () {
+
+    it('using default options with suffixed path', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        expect(ws.getUrl(), 'ws://localhost:8000/ws/my_app')
+    });
+
+    it('using default options with not suffixed path', function () {
+        var ws = new TornadoWebSocket('my_app');
+
+        expect(ws.getUrl(), 'ws://localhost:8000/ws/my_app')
+    });
+
+    it('using secure websocket connection', function() {
+        var ws = new TornadoWebSocket('/my_app', {
+            secure: true
+        });
+
+        expect(ws.getUrl(), 'wss://localhost:8000/ws/my_app')
+    });
+
+    it('using custom host and port', function() {
+        var ws = new TornadoWebSocket('/my_app', {
+            host: 'my_host.fr',
+            port: 8080
+        });
+
+        expect(ws.getUrl(), 'ws://my_host.fr:8080/ws/my_app')
+    });
+
+});
