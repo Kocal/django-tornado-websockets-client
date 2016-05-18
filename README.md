@@ -21,8 +21,12 @@ Usage
     });
    
     // bind events
-    ws.on('open', function(socket, event) {
+    ws.on('open', function(socket) {
         console.log('Connection: OK');
+    
+        socket.on('an_event', function (data) {
+            console.log('Got some data from an_event', data);
+        });
     
         // emit 'my_event' to current user
         socket.emit('my_event', {
@@ -35,8 +39,8 @@ Usage
         });
     });
     
-    ws.on('error', function(socket, event) {
-        console.error(event);
+    ws.on('error', function(error) {
+        console.error(error);
     });
    
     // connect
