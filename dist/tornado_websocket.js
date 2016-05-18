@@ -8,11 +8,11 @@ TornadoWebSocket = (function() {
 
     /**
      * Initialize a new WebSocket object with given options.
-     * @param {string}  path            Url of a django-tornado-websockets application
+     * @param {String}  path            Url of a django-tornado-websockets application
      * @param {Object}  options         Object options
-     * @param {string}  options.host    Host used for connection
-     * @param {number}  options.port    Port user for connection
-     * @param {boolean} options.secure  Using 'ws' or 'wss' protocol
+     * @param {String}  options.host    Host used for connection
+     * @param {Number}  options.port    Port user for connection
+     * @param {Boolean} options.secure  Using 'ws' or 'wss' protocol
      */
     function TornadoWebSocket(path, options) {
         if (!(this instanceof TornadoWebSocket)) {
@@ -30,7 +30,7 @@ TornadoWebSocket = (function() {
 
         /**
          * Configuration values
-         * @type {object}
+         * @type {Object}
          * @private
          */
         this.options = _.merge({
@@ -41,7 +41,7 @@ TornadoWebSocket = (function() {
 
         /**
          * Path of a django-tornado-websockets application
-         * @type {string}
+         * @type {String}
          * @private
          */
         this.path = path.trim();
@@ -49,14 +49,14 @@ TornadoWebSocket = (function() {
 
         /**
          * Generated URL by path and configuration values
-         * @type {string}
+         * @type {String}
          * @private
          */
         this.url = this.buildUrl();
 
         /**
          * Registered events
-         * @type {object}
+         * @type {Object}
          * @private
          */
         this.events = {};
@@ -68,6 +68,12 @@ TornadoWebSocket = (function() {
     };
 
     TornadoWebSocket.prototype.on = function(event, callback) {
+
+        /**
+         * Bind a function to an event.
+         * @param {String}    event     Event name
+         * @param {Function}  callback  Function to execute when event `event` is sent by the server
+         */
         if (typeof callback !== 'function') {
             throw new TypeError("You must pass a function for 'callback' parameter.");
         }
@@ -78,6 +84,11 @@ TornadoWebSocket = (function() {
     };
 
     TornadoWebSocket.prototype.buildUrl = function() {
+
+        /**
+         * Return an URL built from `this.options`
+         * @returns {String}
+         */
         var protocol;
         protocol = this.options.secure ? 'wss' : 'ws';
         return protocol + "://" + this.options.host + ":" + this.options.port + "/ws" + this.path;
