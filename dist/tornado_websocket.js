@@ -55,7 +55,7 @@ TornadoWebSocket = (function() {
         this.url = this.buildUrl();
 
         /**
-         * Reserved events (open, close, and error)
+         * Reserved events (open, close, error and message)
          * @type {Object}
          * @private
          */
@@ -64,10 +64,13 @@ TornadoWebSocket = (function() {
                 return console.info('New connection');
             },
             close: function(reason, event) {
-                return console.info('Connection closed');
+                return console.info('Connection closed', reason, event);
             },
             error: function(event) {
-                return console.info('Got an error');
+                return console.info('Got an error', event);
+            },
+            message: function(event) {
+                return console.info('Got a message');
             }
         };
 
@@ -99,7 +102,7 @@ TornadoWebSocket = (function() {
         })(this);
         this.websocket.onmessage = (function(_this) {
             return function(event) {
-                return _this.client.on(event);
+                return _this.client.onmessage(event);
             };
         })(this);
         return this;

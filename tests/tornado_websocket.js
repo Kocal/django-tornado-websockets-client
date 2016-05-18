@@ -177,7 +177,6 @@ describe('`TornadoWebSocket::connect()`', function () {
         });
 
         ws.on('open', function (socket, event) {
-            console.log(socket);
             expect(socket).toEqual(jasmine.any(TornadoWebSocketClient));
             expect(event).toEqual(jasmine.any(Event));
             expect(event.type).toBe('open');
@@ -193,6 +192,7 @@ describe('`TornadoWebSocket::connect()`', function () {
         });
 
         ws.on('open', function (socket, event) {
+            expect(socket).toEqual(jasmine.any(TornadoWebSocketClient));
             ws.websocket.close();
         });
 
@@ -213,10 +213,12 @@ describe('`TornadoWebSocket::connect()`', function () {
         });
 
         ws.on('open', function (socket, event) {
-            // socket.on('error', function (data) {
-            //     console.log(data);
-            done();
-            // });
+            socket.on('error', function (data) {
+                console.log('DATA=======', data);
+                expect(data).toEqual(jasmine.any(Object))
+                expect(data.message).toContain('The event "open" does not exist for websocket');
+                done();
+            });
         });
 
         ws.on('error', function (error) {

@@ -50,14 +50,15 @@ class TornadoWebSocket
         @url = @buildUrl()
 
         ###*
-        # Reserved events (open, close, and error)
+        # Reserved events (open, close, error and message)
         # @type {Object}
         # @private
         ###
         @reservedEvents =
-            open: (socket, event) -> console.info('New connection')
-            close: (reason, event) -> console.info('Connection closed')
-            error: (event) -> console.info('Got an error')
+            open: (socket, event) -> console.info 'New connection'
+            close: (reason, event) -> console.info 'Connection closed', reason, event
+            error: (event) -> console.info 'Got an error', event
+            message: (event) -> console.info 'Got a message'
 
         ###*
         # Events defined by the user
@@ -80,7 +81,7 @@ class TornadoWebSocket
             @reservedEvents.error event
 
         @websocket.onmessage = (event) =>
-            @client.on event
+            @client.onmessage event
 
         return @
 
