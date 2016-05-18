@@ -47,7 +47,7 @@ class TornadoWebSocket
         # @type {string}
         # @private
         ###
-        @url = @getUrl()
+        @url = @buildUrl()
 
         ###*
         # Registered events
@@ -70,7 +70,7 @@ class TornadoWebSocket
 
         @events[event] = callback
 
-    getUrl: ->
+    buildUrl: ->
         protocol = if @options.secure then 'wss' else 'ws'
 
         return "#{protocol}://#{@options.host}:#{@options.port}/ws#{@path}"

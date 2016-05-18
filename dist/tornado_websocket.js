@@ -52,7 +52,7 @@ TornadoWebSocket = (function() {
          * @type {string}
          * @private
          */
-        this.url = this.getUrl();
+        this.url = this.buildUrl();
 
         /**
          * Registered events
@@ -77,7 +77,7 @@ TornadoWebSocket = (function() {
         return this.events[event] = callback;
     };
 
-    TornadoWebSocket.prototype.getUrl = function() {
+    TornadoWebSocket.prototype.buildUrl = function() {
         var protocol;
         protocol = this.options.secure ? 'wss' : 'ws';
         return protocol + "://" + this.options.host + ":" + this.options.port + "/ws" + this.path;
