@@ -117,7 +117,10 @@ describe('`TornadoWebSocket::buildUrl()`', function () {
 describe('`TornadoWebSocket::on(event, cb)`', function () {
 
     beforeEach(function () {
+        spyOn(console, 'info');
         spyOn(console, 'warn');
+        spyOn(console, 'error');
+        spyOn(console, 'log');
     });
 
     it('should bind an event', function () {
@@ -185,5 +188,73 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
             expect(ws.events['my_event']).toEqual(jasmine.any(Function));
         }).not.toThrowError(TypeError);
     });
+
+    it('should returns default callbacks', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        expect(ws.getEvent('open')).toEqual(jasmine.any(Function));
+        ws.getEvent('open')();
+        expect(console.info).toHaveBeenCalled();
+
+        expect(ws.getEvent('close')).toEqual(jasmine.any(Function));
+        ws.getEvent('close')();
+        expect(console.info).toHaveBeenCalled();
+
+        expect(ws.getEvent('error')).toEqual(jasmine.any(Function));
+        ws.getEvent('error')();
+        expect(console.error).toHaveBeenCalled();
+
+        expect(ws.getEvent('an_event')).toEqual(jasmine.any(Function));
+        ws.getEvent('an_event')();
+        expect(console.warn).toHaveBeenCalled();
+    });
+
+    it('should returns existing callbacks', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.on('open', function (event) {
+            console.log('New connection');
+
+            ws.on('my_event', function (event) {
+                console.log('my_event');
+            });
+        });
+
+        ws.on('close', function (event) {
+            console.log('Closed connection')
+        });
+
+        ws.on('error', function (event) {
+            console.log('Got error');
+        });
+
+        expect(ws.getEvent('open')).toEqual(jasmine.any(Function));
+        ws.getEvent('open')();
+        expect(console.log).toHaveBeenCalled();
+
+        expect(ws.getEvent('close')).toEqual(jasmine.any(Function));
+        ws.getEvent('close')();
+        expect(console.log).toHaveBeenCalled();
+
+        expect(ws.getEvent('error')).toEqual(jasmine.any(Function));
+        ws.getEvent('error')();
+        expect(console.log).toHaveBeenCalled();
+
+        expect(ws.getEvent('my_event')).toEqual(jasmine.any(Function));
+        ws.getEvent('my_event')();
+        expect(console.log).toHaveBeenCalled();
+
+        expect(ws.getEvent('an_event')).toEqual(jasmine.any(Function));
+        ws.getEvent('an_event')();
+        expect(console.warn).toHaveBeenCalled();
+    });
+
+});
+
+describe('`TornadoWebSocket::connect()`', function () {
+
+    it('should connect to server', function () {
+        var ws = new TornadoWebSocket('/my_chat');
+    })
 
 });

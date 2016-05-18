@@ -64,16 +64,24 @@ TornadoWebSocket = (function() {
     }
 
     TornadoWebSocket.prototype.connect = function() {
-        return this.websocket = null;
+        this.websocket = new WebSocket(this.url);
+        this.websocket.onopen = this.getEvent('open');
+        this.websocket.onclose = this.getEvent('close');
+        this.websocket.onerror = this.getEvent('error');
+        this.websocket.onmessage = function(evt) {
+            return console.log('message', evt);
+        };
+        return this;
     };
 
-    TornadoWebSocket.prototype.on = function(event, callback) {
 
-        /**
-         * Bind a function to an event.
-         * @param {String}    event     Event name
-         * @param {Function}  callback  Function to execute when event `event` is sent by the server
-         */
+    /**
+     * Bind a function to an event.
+     * @param {String}    event     Event name
+     * @param {Function}  callback  Function to execute when event `event` is sent by the server
+     */
+
+    TornadoWebSocket.prototype.on = function(event, callback) {
         if (typeof callback !== 'function') {
             throw new TypeError("You must pass a function for 'callback' parameter.");
         }
@@ -83,15 +91,51 @@ TornadoWebSocket = (function() {
         return this.events[event] = callback;
     };
 
-    TornadoWebSocket.prototype.buildUrl = function() {
 
-        /**
-         * Return an URL built from `this.options`
-         * @returns {String}
-         */
+    /**
+     * Return an URL built from `this.options`.
+     * Path is auto-prefixed by "/ws".
+     * @returns {String}
+     */
+
+    TornadoWebSocket.prototype.buildUrl = function() {
         var protocol;
         protocol = this.options.secure ? 'wss' : 'ws';
         return protocol + "://" + this.options.host + ":" + this.options.port + "/ws" + this.path;
+    };
+
+
+    /**
+     * @returns {Function}
+     */
+
+    TornadoWebSocket.prototype.getEvent = function(event_name, default_callback) {
+        var f;
+        if (this.events[event_name] !== void 0) {
+            return this.events[event_name];
+        }
+        switch (event_name) {
+            case 'open':
+                f = function(event) {
+                    return console.info('Open(): New connection:', event);
+                };
+                break;
+            case 'close':
+                f = function(event) {
+                    return console.info('Close(): Closing connection', event);
+                };
+                break;
+            case 'error':
+                f = function(event) {
+                    return console.error('Error(): ', event);
+                };
+                break;
+            default:
+                f = function() {
+                    return console.warn("Can not make a callback for event '" + event_name + "'.");
+                };
+        }
+        return f;
     };
 
     return TornadoWebSocket;

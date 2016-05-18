@@ -59,14 +59,23 @@ class TornadoWebSocket
         @connect()
 
     connect: ->
-        @websocket = null
+        @websocket = new WebSocket @url
 
+        @websocket.onopen = @getEvent 'open'
+        @websocket.onclose = @getEvent 'close'
+        @websocket.onerror = @getEvent 'error'
+
+        @websocket.onmessage = (evt) ->
+            console.log('message', evt)
+
+        return @
+
+    ###*
+    # Bind a function to an event.
+    # @param {String}    event     Event name
+    # @param {Function}  callback  Function to execute when event `event` is sent by the server
+    ###
     on: (event, callback) ->
-        ###*
-        # Bind a function to an event.
-        # @param {String}    event     Event name
-        # @param {Function}  callback  Function to execute when event `event` is sent by the server
-        ###
         if typeof callback isnt 'function'
             throw new TypeError "You must pass a function for 'callback' parameter."
 
@@ -75,11 +84,31 @@ class TornadoWebSocket
 
         @events[event] = callback
 
+    ###*
+    # Return an URL built from `this.options`.
+    # Path is auto-prefixed by "/ws".
+    # @returns {String}
+    ###
     buildUrl: ->
-        ###*
-        # Return an URL built from `this.options`
-        # @returns {String}
-        ###
         protocol = if @options.secure then 'wss' else 'ws'
 
         return "#{protocol}://#{@options.host}:#{@options.port}/ws#{@path}"
+
+    ###*
+    # @returns {Function}
+    ###
+    getEvent: (event_name, default_callback) ->
+        if @events[event_name] isnt undefined
+            return @events[event_name]
+
+        switch event_name
+            when 'open' then f = (event) ->
+                console.info 'Open(): New connection:', event
+            when 'close' then f = (event) ->
+                console.info 'Close(): Closing connection', event
+            when 'error' then f = (event) ->
+                console.error 'Error(): ', event
+            else f = ->
+                console.warn "Can not make a callback for event '#{event_name}'."
+
+        return f
