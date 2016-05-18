@@ -16223,11 +16223,21 @@ TornadoWebSocket = (function() {
         this.url = this.buildUrl();
 
         /**
-         * Reserved events (open, close, message and error)
+         * Reserved events (open, close, and error)
          * @type {Object}
          * @private
          */
-        this.reservedEvents = {};
+        this.reservedEvents = {
+            open: function(socket, event) {
+                return console.info('New connection');
+            },
+            close: function(reason, event) {
+                return console.info('Connection closed');
+            },
+            error: function(event) {
+                return console.info('Got an error');
+            }
+        };
 
         /**
          * Events defined by the user
@@ -16239,10 +16249,27 @@ TornadoWebSocket = (function() {
 
     TornadoWebSocket.prototype.connect = function() {
         this.websocket = new WebSocket(this.url);
-        this.websocket.onopen = this.getReservedEvent('open');
-        this.websocket.onclose = this.getReservedEvent('close');
-        this.websocket.onerror = this.getReservedEvent('error');
-        this.websocket.onmessage = this.getReservedEvent('message');
+        this.client = new TornadoWebSocketClient(this);
+        this.websocket.onopen = (function(_this) {
+            return function(event) {
+                return _this.reservedEvents.open(_this.client, event);
+            };
+        })(this);
+        this.websocket.onclose = (function(_this) {
+            return function(event) {
+                return _this.reservedEvents.close(event.reason, event);
+            };
+        })(this);
+        this.websocket.onerror = (function(_this) {
+            return function(event) {
+                return _this.reservedEvents.error(event);
+            };
+        })(this);
+        this.websocket.onmessage = (function(_this) {
+            return function(event) {
+                return _this.client.on(event);
+            };
+        })(this);
         return this;
     };
 
@@ -16256,9 +16283,6 @@ TornadoWebSocket = (function() {
     TornadoWebSocket.prototype.on = function(event, callback) {
         if (typeof callback !== 'function') {
             throw new TypeError("You must pass a function for 'callback' parameter.");
-        }
-        if (this.reservedEvents[event] !== void 0) {
-            console.warn("Event '" + event + "' event is already binded.");
         }
         this.reservedEvents[event] = callback;
     };
@@ -16276,53 +16300,27 @@ TornadoWebSocket = (function() {
         return protocol + "://" + this.options.host + ":" + this.options.port + "/ws" + this.path;
     };
 
+    return TornadoWebSocket;
 
-    /**
-     * @returns {Function}
-     */
+})();
+var TornadoWebSocketClient;
 
-    TornadoWebSocket.prototype.getReservedEvent = function(event_name, default_callback) {
-        var f;
-        if (this.reservedEvents[event_name] !== void 0) {
-            return this.reservedEvents[event_name];
+TornadoWebSocketClient = (function() {
+    function TornadoWebSocketClient(websocket) {
+        if (!(websocket instanceof TornadoWebSocket)) {
+            throw new Error("Expected TornadoWebSocket instance, got '" + websocket + "'");
         }
-        switch (event_name) {
-            case 'open':
-                f = function(event) {
-                    return console.info('Open(): New connection:', event);
-                };
-                break;
-            case 'close':
-                f = function(event) {
-                    return console.info("Close(): [" + event.code + "] " + event.reason);
-                };
-                break;
-            case 'error':
-                f = function(event) {
-                    return console.error('Error(): ', event.data);
-                };
-                break;
-            case 'message':
-                f = function(event) {
-                    var data, error, passed_data;
-                    try {
-                        data = JSON.parse(event.data);
-                        event = data.event;
-                        passed_data = data.data;
-                    } catch (error) {
-                        throw new Error('Use tornado_websocket.js with a websocket server which send a valid JSON.');
-                    }
-                    console.log(event, passed_data);
-                };
-                break;
-            default:
-                f = function() {
-                    return console.warn("Can not make a callback for event '" + event_name + "'.");
-                };
-        }
-        return f;
+        this.websocket = websocket;
+    }
+
+    TornadoWebSocketClient.prototype.on = function(event, callback) {
+        return console.log(event, callback);
     };
 
-    return TornadoWebSocket;
+    TornadoWebSocketClient.prototype.emit = function(event, data) {
+        return console.log(event, data);
+    };
+
+    return TornadoWebSocketClient;
 
 })();

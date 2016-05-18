@@ -50,11 +50,14 @@ class TornadoWebSocket
         @url = @buildUrl()
 
         ###*
-        # Reserved events (open, close, message and error)
+        # Reserved events (open, close, and error)
         # @type {Object}
         # @private
         ###
-        @reservedEvents = {}
+        @reservedEvents =
+            open: (socket, event) -> console.info('New connection')
+            close: (reason, event) -> console.info('Connection closed')
+            error: (event) -> console.info('Got an error')
 
         ###*
         # Events defined by the user
@@ -65,11 +68,19 @@ class TornadoWebSocket
 
     connect: ->
         @websocket = new WebSocket @url
+        @client = new TornadoWebSocketClient @
 
-        @websocket.onopen = @getReservedEvent 'open'
-        @websocket.onclose = @getReservedEvent 'close'
-        @websocket.onerror = @getReservedEvent 'error'
-        @websocket.onmessage = @getReservedEvent 'message'
+        @websocket.onopen = (event) =>
+            @reservedEvents.open @client, event
+
+        @websocket.onclose = (event) =>
+            @reservedEvents.close event.reason, event
+
+        @websocket.onerror = (event) =>
+            @reservedEvents.error event
+
+        @websocket.onmessage = (event) =>
+            @client.on event
 
         return @
 
@@ -81,9 +92,6 @@ class TornadoWebSocket
     on: (event, callback) ->
         if typeof callback isnt 'function'
             throw new TypeError "You must pass a function for 'callback' parameter."
-
-        if @reservedEvents[event] isnt undefined
-            console.warn "Event '#{event}' event is already binded."
 
         @reservedEvents[event] = callback
         return
@@ -97,34 +105,3 @@ class TornadoWebSocket
         protocol = if @options.secure then 'wss' else 'ws'
 
         return "#{protocol}://#{@options.host}:#{@options.port}/ws#{@path}"
-
-    ###*
-    # @returns {Function}
-    ###
-    getReservedEvent: (event_name, default_callback) ->
-        if @reservedEvents[event_name] isnt undefined
-            return @reservedEvents[event_name]
-
-        switch event_name
-            when 'open' then f = (event) ->
-                console.info 'Open(): New connection:', event
-            when 'close' then f = (event) ->
-                console.info "Close(): [#{event.code}] #{event.reason}"
-            when 'error' then f = (event) ->
-                console.error 'Error(): ', event.data
-            when 'message' then f = (event) ->
-                try
-                    data = JSON.parse(event.data)
-                    event = data.event
-                    passed_data = data.data
-                catch # invalid JSON or event/passed_data not found
-                    throw new Error 'Use tornado_websocket.js with a websocket server which send a valid JSON.'
-
-                console.log event, passed_data
-                return
-
-            else
-                f = ->
-                    console.warn "Can not make a callback for event '#{event_name}'."
-
-        return f
