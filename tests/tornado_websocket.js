@@ -197,11 +197,11 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         expect(console.info).toHaveBeenCalled();
 
         expect(ws.getEvent('close')).toEqual(jasmine.any(Function));
-        ws.getEvent('close')();
+        ws.getEvent('close')({});
         expect(console.info).toHaveBeenCalled();
 
         expect(ws.getEvent('error')).toEqual(jasmine.any(Function));
-        ws.getEvent('error')();
+        ws.getEvent('error')({});
         expect(console.error).toHaveBeenCalled();
 
         expect(ws.getEvent('an_event')).toEqual(jasmine.any(Function));
@@ -253,8 +253,28 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
 
 describe('`TornadoWebSocket::connect()`', function () {
 
-    it('should connect to server', function () {
+    it('should connect to server and receive "open" event', function (done) {
         var ws = new TornadoWebSocket('/my_chat');
-    })
+
+        ws.on('open', function (evt) {
+            done();
+        });
+
+        ws.connect();
+    });
+
+    it('should connect to server and trigger open and close event callback', function (done) {
+        var ws = new TornadoWebSocket('/my_chat');
+
+        ws.on('open', function (evt) {
+            ws.websocket.close();
+        });
+
+        ws.on('close', function (evt) {
+            done();
+        });
+
+        ws.connect();
+    });
 
 });

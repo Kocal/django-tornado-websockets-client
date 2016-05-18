@@ -56,8 +56,6 @@ class TornadoWebSocket
         ###
         @events = {}
 
-        @connect()
-
     connect: ->
         @websocket = new WebSocket @url
 
@@ -105,10 +103,11 @@ class TornadoWebSocket
             when 'open' then f = (event) ->
                 console.info 'Open(): New connection:', event
             when 'close' then f = (event) ->
-                console.info 'Close(): Closing connection', event
+                console.info "Close(): [#{event.code}] #{event.reason}"
             when 'error' then f = (event) ->
-                console.error 'Error(): ', event
-            else f = ->
-                console.warn "Can not make a callback for event '#{event_name}'."
+                console.error 'Error(): ', event.data
+            else
+                f = ->
+                    console.warn "Can not make a callback for event '#{event_name}'."
 
         return f

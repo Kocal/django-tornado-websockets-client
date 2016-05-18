@@ -16228,7 +16228,6 @@ TornadoWebSocket = (function() {
          * @private
          */
         this.events = {};
-        this.connect();
     }
 
     TornadoWebSocket.prototype.connect = function() {
@@ -16290,12 +16289,12 @@ TornadoWebSocket = (function() {
                 break;
             case 'close':
                 f = function(event) {
-                    return console.info('Close(): Closing connection', event);
+                    return console.info("Close(): [" + event.code + "] " + event.reason);
                 };
                 break;
             case 'error':
                 f = function(event) {
-                    return console.error('Error(): ', event);
+                    return console.error('Error(): ', event.data);
                 };
                 break;
             default:
