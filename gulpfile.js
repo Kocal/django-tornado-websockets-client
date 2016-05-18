@@ -17,7 +17,7 @@ gulp.task('scripts', function () {
     return gulp.src(['src/vendor/**/*.js', 'src/**/*.coffee'])
         .pipe(plumber({
             errorHandler: function (error) {
-                console.log(error.message);
+                console.log(error.message, error.location);
                 this.emit('end');
             }
         }))
