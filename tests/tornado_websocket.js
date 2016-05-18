@@ -254,7 +254,9 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
 describe('`TornadoWebSocket::connect()`', function () {
 
     it('should connect to server and receive "open" event', function (done) {
-        var ws = new TornadoWebSocket('/my_chat');
+        var ws = new TornadoWebSocket('/my_chat', {
+            host: 'kocal.fr'
+        });
 
         ws.on('open', function (evt) {
             done();
@@ -264,7 +266,9 @@ describe('`TornadoWebSocket::connect()`', function () {
     });
 
     it('should connect to server and trigger open and close event callback', function (done) {
-        var ws = new TornadoWebSocket('/my_chat');
+        var ws = new TornadoWebSocket('/my_chat', {
+            host: 'kocal.fr'
+        });
 
         ws.on('open', function (evt) {
             ws.websocket.close();
