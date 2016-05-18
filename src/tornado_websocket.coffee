@@ -15,7 +15,7 @@ class TornadoWebSocket
             return new TornadoWebSocket path, options
 
         if path is undefined
-            throw new ReferenceError 'You must pass "path" parameter during "TornadoWebSocket" instantiation.'
+            throw new ReferenceError "You must pass 'path' parameter during 'TornadoWebSocket' instantiation."
 
         ###*
         # WebSocket instance
@@ -60,6 +60,15 @@ class TornadoWebSocket
 
     connect: ->
         @websocket = null
+
+    on: (event, callback) ->
+        if typeof callback isnt 'function'
+            throw new TypeError "You must pass a function for 'callback' parameter."
+
+        if @events[event] isnt undefined
+            console.warn "Event '#{event}' event is already binded."
+
+        @events[event] = callback
 
     getUrl: ->
         protocol = if @options.secure then 'wss' else 'ws'

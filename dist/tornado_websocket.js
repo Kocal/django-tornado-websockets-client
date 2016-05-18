@@ -19,7 +19,7 @@ TornadoWebSocket = (function() {
             return new TornadoWebSocket(path, options);
         }
         if (path === void 0) {
-            throw new ReferenceError('You must pass "path" parameter during "TornadoWebSocket" instantiation.');
+            throw new ReferenceError("You must pass 'path' parameter during 'TornadoWebSocket' instantiation.");
         }
 
         /**
@@ -65,6 +65,16 @@ TornadoWebSocket = (function() {
 
     TornadoWebSocket.prototype.connect = function() {
         return this.websocket = null;
+    };
+
+    TornadoWebSocket.prototype.on = function(event, callback) {
+        if (typeof callback !== 'function') {
+            throw new TypeError("You must pass a function for 'callback' parameter.");
+        }
+        if (this.events[event] !== void 0) {
+            console.warn("Event '" + event + "' event is already binded.");
+        }
+        return this.events[event] = callback;
     };
 
     TornadoWebSocket.prototype.getUrl = function() {

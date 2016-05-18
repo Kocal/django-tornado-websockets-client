@@ -27,7 +27,7 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
     it('should raise a ReferenceError exception because there is no "path" parameter', function () {
         expect(function () {
             return new TornadoWebSocket
-        }).toThrowError(ReferenceError, 'You must pass "path" parameter during "TornadoWebSocket" instantiation.')
+        }).toThrowError(ReferenceError, "You must pass 'path' parameter during 'TornadoWebSocket' instantiation.")
     });
 
     it('should be using default options', function () {
@@ -110,6 +110,80 @@ describe('`TornadoWebSocket::getUrl()`', function () {
         });
 
         expect(ws.getUrl(), 'ws://my_host.fr:8080/ws/my_app')
+    });
+
+});
+
+describe('`TornadoWebSocket::on(event, cb)`', function () {
+
+    beforeEach(function () {
+        spyOn(console, 'warn');
+    });
+
+    it('should bind an event', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        var my_func = function () {
+        };
+
+        ws.on('my_event', my_func);
+
+        expect(console.warn).not.toHaveBeenCalled();
+
+        expect(Object.keys(ws.events)).toContain('my_event');
+        expect(ws.events['my_event']).toEqual(jasmine.any(Function));
+    });
+
+    it('should bind two differents events', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        var my_func = function () {
+        };
+
+        ws.on('my_event', my_func);
+        ws.on('my_other_event', my_func);
+
+        expect(console.warn).not.toHaveBeenCalled();
+
+        expect(Object.keys(ws.events)).toContain('my_event');
+        expect(ws.events['my_event']).toEqual(jasmine.any(Function));
+
+        expect(Object.keys(ws.events)).toContain('my_other_event');
+        expect(ws.events['my_other_event']).toEqual(jasmine.any(Function));
+    });
+
+    it('should bind two same events but call `console.warn`', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        var my_func = function () {
+        };
+
+        ws.on('my_event', my_func);
+        ws.on('my_event', my_func);
+
+        expect(console.warn).toHaveBeenCalled();
+        expect(Object.keys(ws.events).length).toEqual(1)
+
+    });
+
+    it('should raise TypeError exception if `callback` parameter is not a function', function () {
+        var ws = new TornadoWebSocket('/my_app')
+
+        expect(function () {
+            ws.on('my_event', 5000);
+        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
+
+        expect(function () {
+            ws.on('my_event', 'a string');
+        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
+
+        expect(function () {
+            ws.on('my_event', { an: 'object' });
+        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
+
+        expect(function () {
+            ws.on('my_event', function () {
+            });
+
+            expect(ws.events['my_event']).toEqual(jasmine.any(Function));
+        }).not.toThrowError(TypeError);
     });
 
 });
