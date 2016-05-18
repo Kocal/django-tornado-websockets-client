@@ -123,130 +123,48 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         spyOn(console, 'log');
     });
 
-    it('should bind an event', function () {
-        var ws = new TornadoWebSocket('/my_app');
-        var my_func = function () {
-        };
-
-        ws.on('my_event', my_func);
-
-        expect(console.warn).not.toHaveBeenCalled();
-
-        expect(Object.keys(ws.reservedEvents)).toContain('my_event');
-        expect(ws.reservedEvents['my_event']).toEqual(jasmine.any(Function));
-    });
-
-    it('should bind two differents reservedEvents', function () {
-        var ws = new TornadoWebSocket('/my_app');
-        var my_func = function () {
-        };
-
-        ws.on('my_event', my_func);
-        ws.on('my_other_event', my_func);
-
-        expect(console.warn).not.toHaveBeenCalled();
-
-        expect(Object.keys(ws.reservedEvents)).toContain('my_event');
-        expect(ws.reservedEvents['my_event']).toEqual(jasmine.any(Function));
-
-        expect(Object.keys(ws.reservedEvents)).toContain('my_other_event');
-        expect(ws.reservedEvents['my_other_event']).toEqual(jasmine.any(Function));
-    });
-
-    it('should bind two same reservedEvents but call `console.warn`', function () {
-        var ws = new TornadoWebSocket('/my_app');
-        var my_func = function () {
-        };
-
-        ws.on('my_event', my_func);
-        ws.on('my_event', my_func);
-
-        expect(console.warn).toHaveBeenCalled();
-        expect(Object.keys(ws.reservedEvents).length).toEqual(1)
-
-    });
-
-    it('should raise TypeError exception if `callback` parameter is not a function', function () {
-        var ws = new TornadoWebSocket('/my_app')
-
-        expect(function () {
-            ws.on('my_event', 5000);
-        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
-
-        expect(function () {
-            ws.on('my_event', 'a string');
-        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
-
-        expect(function () {
-            ws.on('my_event', { an: 'object' });
-        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
-
-        expect(function () {
-            ws.on('my_event', function () {
-            });
-
-            expect(ws.reservedEvents['my_event']).toEqual(jasmine.any(Function));
-        }).not.toThrowError(TypeError);
-    });
-
-    it('should returns default callbacks', function () {
+    it('should returns defaults callbacks', function () {
         var ws = new TornadoWebSocket('/my_app');
 
-        expect(ws.getReservedEvent('open')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('open')();
+        expect(ws.reservedEvents.open).toEqual(jasmine.any(Function));
+        ws.reservedEvents.open();
         expect(console.info).toHaveBeenCalled();
 
-        expect(ws.getReservedEvent('close')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('close')({});
+        expect(ws.reservedEvents.close).toEqual(jasmine.any(Function));
+        ws.reservedEvents.close();
         expect(console.info).toHaveBeenCalled();
 
-        expect(ws.getReservedEvent('error')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('error')({});
-        expect(console.error).toHaveBeenCalled();
-
-        expect(ws.getReservedEvent('an_event')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('an_event')();
-        expect(console.warn).toHaveBeenCalled();
+        expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
+        ws.reservedEvents.error();
+        expect(console.info).toHaveBeenCalled();
     });
 
-    it('should returns existing callbacks', function () {
+    it('should returns new callbacks', function () {
         var ws = new TornadoWebSocket('/my_app');
 
-        ws.on('open', function (event) {
+        ws.on('open', function (socket, event) {
             console.log('New connection');
-
-            ws.on('my_event', function (event) {
-                console.log('my_event');
-            });
         });
 
-        ws.on('close', function (event) {
+        ws.on('close', function (reason, event) {
             console.log('Closed connection')
         });
 
         ws.on('error', function (event) {
-            console.log('Got error');
+            console.log('Got an error');
         });
 
-        expect(ws.getReservedEvent('open')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('open')();
+        expect(ws.reservedEvents.open).toEqual(jasmine.any(Function));
+        ws.reservedEvents.open();
         expect(console.log).toHaveBeenCalled();
 
-        expect(ws.getReservedEvent('close')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('close')();
+        expect(ws.reservedEvents.close).toEqual(jasmine.any(Function));
+        ws.reservedEvents.close();
         expect(console.log).toHaveBeenCalled();
 
-        expect(ws.getReservedEvent('error')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('error')();
+        expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
+        ws.reservedEvents.error();
         expect(console.log).toHaveBeenCalled();
-
-        expect(ws.getReservedEvent('my_event')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('my_event')();
-        expect(console.log).toHaveBeenCalled();
-
-        expect(ws.getReservedEvent('an_event')).toEqual(jasmine.any(Function));
-        ws.getReservedEvent('an_event')();
-        expect(console.warn).toHaveBeenCalled();
     });
 
 });
@@ -258,40 +176,54 @@ describe('`TornadoWebSocket::connect()`', function () {
             host: 'kocal.fr'
         });
 
-        ws.on('open', function () {
+        ws.on('open', function (socket, event) {
+            console.log(socket);
+            expect(socket).toEqual(jasmine.any(TornadoWebSocketClient));
+            expect(event).toEqual(jasmine.any(Event));
+            expect(event.type).toBe('open');
             done();
         });
 
         ws.connect();
     });
 
-    it('should connect to server and then close connection', function (done) {
+    it('should connect to server and wait close connection', function (done) {
         var ws = new TornadoWebSocket('/my_chat', {
             host: 'kocal.fr'
         });
 
-        ws.on('open', function () {
+        ws.on('open', function (socket, event) {
             ws.websocket.close();
         });
 
-        ws.on('close', function () {
+        ws.on('close', function (reason, event) {
+            expect(reason).toEqual(jasmine.any(String));
+            expect(reason).toBe(event.reason);
+            expect(event).toEqual(jasmine.any(CloseEvent));
+            expect(event.type).toBe('close');
             done();
         });
 
         ws.connect();
     });
 
-    it('should connect to server and expected an error message', function (done) {
+    it('should connect to server and got user defined error message', function (done) {
         var ws = new TornadoWebSocket('/my_chat', {
             host: 'kocal.fr'
         });
 
-        ws.on('open', function(socket) {
-            socket.on('error', function(data) {
-                console.log(data);
-            });
-            done()
+        ws.on('open', function (socket, event) {
+            // socket.on('error', function (data) {
+            //     console.log(data);
+            done();
+            // });
         });
+
+        ws.on('error', function (error) {
+            throw new Error('Should not be executed')
+        });
+
+        ws.connect();
     });
 
 });
