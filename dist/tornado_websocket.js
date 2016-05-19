@@ -122,6 +122,20 @@ TornadoWebSocket = (function() {
         this.reservedEvents[event] = callback;
     };
 
+    TornadoWebSocket.prototype.emit = function(event, data, broadcast) {
+        if (data == null) {
+            data = {};
+        }
+        if (broadcast == null) {
+            broadcast = true;
+        }
+        data = JSON.stringify({
+            event: event,
+            data: data
+        });
+        return this.websocket.send(data);
+    };
+
 
     /**
      * Return an URL built from `this.options`.

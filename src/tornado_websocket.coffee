@@ -97,6 +97,13 @@ class TornadoWebSocket
         @reservedEvents[event] = callback
         return
 
+    emit: (event, data={}, broadcast=true) ->
+        data = JSON.stringify
+            event: event,
+            data: data
+
+        @websocket.send data
+
     ###*
     # Return an URL built from `this.options`.
     # Path is auto-prefixed by "/ws".

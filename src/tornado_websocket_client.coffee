@@ -21,8 +21,6 @@ class TornadoWebSocketClient
         passed_event = data.event
         passed_data = data.data
 
-        console.log 'events', @events
-
         if passed_event is undefined or passed_data is undefined
             console.error 'Can not get passed event or passed data.'
             return
@@ -37,7 +35,9 @@ class TornadoWebSocketClient
 
     on: (event, callback) ->
         @events[event] = callback
+        return
 
     emit: (event, data) ->
         @websocket.emit(event, data, false)
+        return
 

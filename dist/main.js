@@ -16290,6 +16290,20 @@ TornadoWebSocket = (function() {
         this.reservedEvents[event] = callback;
     };
 
+    TornadoWebSocket.prototype.emit = function(event, data, broadcast) {
+        if (data == null) {
+            data = {};
+        }
+        if (broadcast == null) {
+            broadcast = true;
+        }
+        data = JSON.stringify({
+            event: event,
+            data: data
+        });
+        return this.websocket.send(data);
+    };
+
 
     /**
      * Return an URL built from `this.options`.
@@ -16332,7 +16346,6 @@ TornadoWebSocketClient = (function() {
         }
         passed_event = data.event;
         passed_data = data.data;
-        console.log('events', this.events);
         if (passed_event === void 0 || passed_data === void 0) {
             console.error('Can not get passed event or passed data.');
             return;
@@ -16346,11 +16359,11 @@ TornadoWebSocketClient = (function() {
     };
 
     TornadoWebSocketClient.prototype.on = function(event, callback) {
-        return this.events[event] = callback;
+        this.events[event] = callback;
     };
 
     TornadoWebSocketClient.prototype.emit = function(event, data) {
-        return this.websocket.emit(event, data, false);
+        this.websocket.emit(event, data, false);
     };
 
     return TornadoWebSocketClient;
