@@ -15,7 +15,9 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/main.js',
+            'dist/lodash.js',
+            'dist/tornado_websocket.js',
+            'dist/tornado_websocket_client.js',
             'tests/*.js'
         ],
 
@@ -26,13 +28,16 @@ module.exports = function (config) {
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
+        preprocessors: {
+            'dist/tornado_websocket.js': ['coverage'],
+            'dist/tornado_websocket_client.js': ['coverage']
+        },
 
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-        reporters: ['mocha'],
+        reporters: ['mocha', 'coverage'],
 
 
         // web server port
@@ -73,15 +78,33 @@ module.exports = function (config) {
         concurrency: Infinity
     };
 
+    // Browser
     if (process.env.TRAVIS) {
         var browser = process.env.BROWSER;
 
-        if (browser == 'Chrome')
+        if (browser == 'Chrome') {
             browser = 'Chrome_travis_ci';
+        }
 
         configuration.browsers.push(browser);
     } else {
         configuration.browsers.push('Chrome', 'Firefox', 'Opera')
+    }
+
+    // Coveralls
+    if (process.env.TRAVIS) {
+        console.log('On Travis sending coveralls');
+        configuration.reporters.push('coveralls');
+        configuration.coverageReporter = {
+            type: 'lcov',
+            dir: 'coverage'
+        };
+    } else {
+        console.log('Not on Travis so not sending coveralls');
+        configuration.coverageReporter = {
+            type: 'html',
+            dir: 'coverage'
+        }
     }
 
     config.set(configuration)
