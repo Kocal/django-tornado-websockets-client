@@ -137,6 +137,10 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
         ws.reservedEvents.error();
         expect(console.info).toHaveBeenCalled();
+
+        expect(ws.reservedEvents.message).toEqual(jasmine.any(Function));
+        ws.reservedEvents.message();
+        expect(console.info).toHaveBeenCalled();
     });
 
     it('should returns new callbacks', function () {
@@ -154,6 +158,10 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
             console.log('Got an error');
         });
 
+        ws.on('message', function (event) {
+            console.log('Got a message');
+        });
+
         expect(ws.reservedEvents.open).toEqual(jasmine.any(Function));
         ws.reservedEvents.open();
         expect(console.log).toHaveBeenCalled();
@@ -165,6 +173,18 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
         ws.reservedEvents.error();
         expect(console.log).toHaveBeenCalled();
+
+        expect(ws.reservedEvents.message).toEqual(jasmine.any(Function));
+        ws.reservedEvents.message();
+        expect(console.log).toHaveBeenCalled();
+    });
+
+    it('should throw an exception when callback is not a function', function () {
+        var ws = TornadoWebSocket('/my_app');
+
+        expect(function () {
+            ws.on('open', 'not a function');
+        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
     });
 
 });
@@ -207,32 +227,26 @@ describe('`TornadoWebSocket::connect()`', function () {
         ws.connect();
     });
 
-    it('should connect to a websocker echo server`', function (done) {
-
+    it('should connect to a websocket echo server`', function (done) {
         var ws = new TornadoWebSocket('/echo', { host: 'kocal.fr' });
-        var messages = ['Message #1', 'Message #2', 'Message #3'];
-        var cursor = 0;
 
-        ws.on('open', function (socket) {
-
-            socket.emit('message', {
-                message: messages[cursor]
-            });
-
-            socket.on('message', function (data) {
-                expect(data).toEqual(jasmine.any(Object));
-                expect(data.message).toBe(messages[cursor++]);
-
-                if (cursor < messages.length) {
-                    socket.emit('message', {
-                        message: messages[cursor]
-                    });
-                } else {
-                    done();
-                }
-            });
+        ws.on('open', function () {
+            done();
         });
 
         ws.connect();
     });
+
+    xit('should connect to a non existing websocket server', function () {
+        var ws = new TornadoWebSocket('/i/do/not/exist', { host: 'kocal.fr' });
+
+        ws.on('error', function () {
+            throw new Error("Can not connect to websocket server.");
+        });
+
+        expect(function () {
+            ws.connect();
+        }).toThrow(new Error("Can not connect to websocket server."));
+    });
+
 });
