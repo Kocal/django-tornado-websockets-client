@@ -21,21 +21,17 @@ Usage
         host: 'my_host.fr', // 'localhost' by default
         port: 8888,         // '8000' by default
         secure: true,       // 'false' by default
-        autoConnect: false, // 'true' by default
     });
    
     // bind events
     ws.on('open', () =>
         console.log('Connection: OK');
     
-        socket.on('an_event', data => {
+        ws.emit('my_event', { message: 'A message.' });
+    
+        ws.on('an_event', data => {
             console.log('Got some data from an_event', data);
             console.log('Foo value =', data.foo);
-        });
-    
-        // emit 'my_event' to current user
-        socket.emit('my_event', {
-            some: 'data'
         });
     });
     
