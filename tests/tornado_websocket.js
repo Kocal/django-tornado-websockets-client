@@ -102,6 +102,56 @@ describe('`TornadoWebSocket::buildUrl()`', function () {
 
 });
 
+describe('`TornadoWebSocket::connect()`', function () {
+
+    it('should connect to server', function (done) {
+        var ws = new TornadoWebSocket('/my_chat', {
+            host: 'kocal.fr'
+        });
+
+        ws.on('open', function (event) {
+            expect(event).toEqual(jasmine.any(Event));
+            expect(event.type).toBe('open');
+            done();
+        });
+    });
+
+    it('should connect to server and wait close connection', function (done) {
+        var ws = new TornadoWebSocket('/my_chat', {
+            host: 'kocal.fr'
+        });
+
+        ws.on('open', function (event) {
+            ws.websocket.close();
+        });
+
+        ws.on('close', function (event) {
+            expect(event).toEqual(jasmine.any(CloseEvent));
+            expect(event.type).toBe('close');
+            done();
+        });
+    });
+
+    it('should connect to a websocket echo server`', function (done) {
+        var ws = new TornadoWebSocket('/echo', { host: 'kocal.fr' });
+
+        ws.on('open', function () {
+            done();
+        });
+
+        ws.connect();
+    });
+
+    xit('should connect to a non existing websocket server', function () {
+        var ws = new TornadoWebSocket('/i/do/not/exist', { host: 'kocal.fr' });
+
+        ws.on('error', function () {
+            throw new Error("Can not connect to websocket server.");
+        });
+    });
+});
+
+
 describe('`TornadoWebSocket::on(event, cb)`', function () {
 
     beforeEach(function () {
@@ -218,53 +268,4 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
     });
 
-});
-
-describe('`TornadoWebSocket::connect()`', function () {
-
-    it('should connect to server', function (done) {
-        var ws = new TornadoWebSocket('/my_chat', {
-            host: 'kocal.fr'
-        });
-
-        ws.on('open', function (event) {
-            expect(event).toEqual(jasmine.any(Event));
-            expect(event.type).toBe('open');
-            done();
-        });
-    });
-
-    it('should connect to server and wait close connection', function (done) {
-        var ws = new TornadoWebSocket('/my_chat', {
-            host: 'kocal.fr'
-        });
-
-        ws.on('open', function (event) {
-            ws.websocket.close();
-        });
-
-        ws.on('close', function (event) {
-            expect(event).toEqual(jasmine.any(CloseEvent));
-            expect(event.type).toBe('close');
-            done();
-        });
-    });
-
-    it('should connect to a websocket echo server`', function (done) {
-        var ws = new TornadoWebSocket('/echo', { host: 'kocal.fr' });
-
-        ws.on('open', function () {
-            done();
-        });
-
-        ws.connect();
-    });
-
-    xit('should connect to a non existing websocket server', function () {
-        var ws = new TornadoWebSocket('/i/do/not/exist', { host: 'kocal.fr' });
-
-        ws.on('error', function () {
-            throw new Error("Can not connect to websocket server.");
-        });
-    });
 });
