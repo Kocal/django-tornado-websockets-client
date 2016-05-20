@@ -6,35 +6,6 @@ if (typeof tws !== 'function') {
     };
 }
 
-
-/**
- * Polyfill for Object.assign()
- */
-
-if (typeof Object.assign !== 'function') {
-    (function() {
-        return Object.assign = function(target) {
-            var i, index, j, len, nextKey, output, ref, source;
-            if (target === null || target === void 0) {
-                throw new TypeError('Cannot convert undefined or null to object');
-            }
-            output = Object(target);
-            for (index = i = 1, ref = arguments.length; 1 <= ref ? i < ref : i > ref; index = 1 <= ref ? ++i : --i) {
-                source = arguments[index];
-                if (source !== void 0 && source !== null) {
-                    for (j = 0, len = source.length; j < len; j++) {
-                        nextKey = source[j];
-                        if (Object.prototype.hasOwnProperty.call(source, nextKey)) {
-                            output[nextKey] = source[nextKey];
-                        }
-                    }
-                }
-            }
-            return output;
-        };
-    })();
-}
-
 TornadoWebSocket = (function() {
 
     /**
