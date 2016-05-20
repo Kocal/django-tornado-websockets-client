@@ -269,3 +269,70 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
     });
 
 });
+
+describe('`TornadoWebSocket::emit(event, data)`', function () {
+
+    var realWebSocket;
+    var spySend;
+    var spyWebSocket;
+    var spyOnMessageCallback;
+
+    beforeAll(function () {
+        // Save real WebSocket class
+        realWebSocket = window.WebSocket;
+
+        // Mocking WebSocket.send method
+        spySend = spyOn(WebSocket.prototype, 'send').and.callFake(function (data) {
+            var data = JSON.parse(data);
+            var passed_data = data.data;
+            this.onmessage(passed_data);
+        });
+
+        // Mocking WebSocket class
+        spyWebSocket = spyOn(window, 'WebSocket').and.callFake(function (url, protocols) {
+            return new realWebSocket(url, protocols);
+        });
+
+        spyOnMessageCallback = jasmine.createSpy('onMessageCallback');
+    });
+
+    it('should send data when an object given', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        ws.websocket.onmessage = spyOnMessageCallback;
+
+        ws.emit('event', {
+            key: 'value'
+        });
+
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({ key: 'value' });
+        spyOnMessageCallback.calls.reset();
+    });
+
+    it('should send an empty object when no data are given', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        ws.websocket.onmessage = spyOnMessageCallback;
+
+        ws.emit('event');
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({});
+        spyOnMessageCallback.calls.reset();
+    });
+
+    it('should put data in an object when given data is not an object', function () {
+        var ws = new TornadoWebSocket('/my_app');
+        ws.websocket.onmessage = spyOnMessageCallback;
+
+        ws.emit('event', 'A string.');
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({ message: 'A string.' });
+        spyOnMessageCallback.calls.reset();
+
+        ws.emit('event', 12000);
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({ message: 12000 });
+        spyOnMessageCallback.calls.reset();
+    });
+
+
+    afterEach(function () {
+        window.WebSocket = realWebSocket;
+    })
+
+});
