@@ -18,33 +18,35 @@ Usage
 ```js
     var ws = new TornadoWebSocket('/my_app', {
         // options
+        host: 'my_host.fr', // 'localhost' by default
+        port: 8888,         // '8000' by default
+        secure: true,       // 'false' by default
     });
    
     // bind events
-    ws.on('open', function(socket) {
+    ws.on('open', () =>
         console.log('Connection: OK');
     
-        socket.on('an_event', function (data) {
+        socket.on('an_event', data => {
             console.log('Got some data from an_event', data);
+            console.log('Foo value =', data.foo);
         });
     
         // emit 'my_event' to current user
         socket.emit('my_event', {
             some: 'data'
         });
-        
-        // emit 'my_other_event' to all users connected to '/my_app' application
-        ws.emit('my_event', {
-            some: 'data'
-        });
     });
     
-    ws.on('error', function(error) {
-        console.error(error);
+    ws.on('close', (reason, event) => {
+        console.log('Connection: CLOSED');
+        console.log('Reason: ', reason, event);
     });
-   
-    // connect
-    ws.connect();
+    
+    ws.on('error', event => {
+        console.log('Connection: ERROR');
+        console.error(event);
+    });
 ```
 
 Run tests
