@@ -16306,7 +16306,7 @@ TornadoWebSocket = (function() {
 
     /**
      * Emit a couple event/data to WebSocket server.
-     * If value of data parameter is not an object, it is converts to `{message: data}` object.
+     * If value of data parameter is not an object, it is put into a `{message: data}` object.
      * @param {String}    event  Event name
      * @param {Object|*}  data   Data to send
      */
