@@ -36,26 +36,13 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
         expect(ws.options).toEqual({
             host: 'localhost',
             port: 8000,
-            secure: false
+            secure: false,
         });
     });
 
     it('should be merging options', function () {
         var ws = new TornadoWebSocket('my_app', {
             host: 'my.host.fr',
-            port: 8080
-        });
-
-        expect(ws.options).toEqual({
-            host: 'my.host.fr',
-            port: 8080,
-            secure: false
-        });
-    });
-
-    it('should be overide options', function () {
-        var ws = new TornadoWebSocket('my_app', {
-            host: 'my.host.fr',
             port: 8080,
             secure: true
         });
@@ -63,9 +50,10 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
         expect(ws.options).toEqual({
             host: 'my.host.fr',
             port: 8080,
-            secure: true
+            secure: true,
         });
     });
+
 
     it('should suffix path by "/"', function () {
         var ws = new TornadoWebSocket('my_app');
@@ -123,27 +111,25 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         spyOn(console, 'log');
     });
 
-    it('should returns defaults callbacks', function () {
+    it('should use defaults callbacks', function () {
         var ws = new TornadoWebSocket('/my_app');
 
-        expect(ws.reservedEvents.open).toEqual(jasmine.any(Function));
-        ws.reservedEvents.open();
-        expect(console.info).toHaveBeenCalled();
+        expect(ws.websocket.onopen).toEqual(jasmine.any(Function));
+        ws.websocket.onopen(new Event('open'));
+        expect(console.info).toHaveBeenCalledWith('New connection', jasmine.any(Event));
 
-        expect(ws.reservedEvents.close).toEqual(jasmine.any(Function));
-        ws.reservedEvents.close();
-        expect(console.info).toHaveBeenCalled();
+        expect(ws.websocket.onclose).toEqual(jasmine.any(Function));
+        ws.websocket.onclose(new CloseEvent('close'));
+        expect(console.info).toHaveBeenCalledWith('Connection closed', jasmine.any(CloseEvent));
 
-        expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
-        ws.reservedEvents.error();
-        expect(console.info).toHaveBeenCalled();
+        expect(ws.websocket.onerror).toEqual(jasmine.any(Function));
+        ws.websocket.onerror(new Event('open'));
+        expect(console.info).toHaveBeenCalledWith('Error', jasmine.any(Event));
 
-        expect(ws.reservedEvents.message).toEqual(jasmine.any(Function));
-        ws.reservedEvents.message();
-        expect(console.info).toHaveBeenCalled();
+        expect(ws.websocket.onmessage).toEqual(jasmine.any(Function));
     });
 
-    it('should returns new callbacks', function () {
+    it('should use overridden callbacks', function () {
         var ws = new TornadoWebSocket('/my_app');
 
         ws.on('open', function (socket, event) {
@@ -158,25 +144,70 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
             console.log('Got an error');
         });
 
-        ws.on('message', function (event) {
-            console.log('Got a message');
+    });
+
+    it('should warn about invalid JSON', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.websocket.onmessage(new MessageEvent('message', { data: 'Not JSON.' }));
+        expect(console.warn).toHaveBeenCalledWith('Can not parse invalid JSON: ', 'Not JSON.');
+    });
+
+    it('should warn about passed event not found', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.websocket.onmessage(new MessageEvent('message', {
+            data: JSON.stringify({ "key": "data" })
+        }));
+        expect(console.warn).toHaveBeenCalledWith('Can not get passed event from JSON data.');
+    });
+
+    it('should warn about passed data not found', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.websocket.onmessage(new MessageEvent('message', {
+            data: JSON.stringify({ "event": "my_event" })
+        }));
+        expect(console.warn).toHaveBeenCalledWith('Can not get passed data from JSON data.');
+    });
+
+    it('should warn about passed data that is not an object', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.websocket.onmessage(new MessageEvent('message', {
+            data: JSON.stringify({ "event": "my_event", "data": "Not an object." })
+        }));
+        expect(console.warn).toHaveBeenCalledWith('Can not get passed data from JSON data.');
+    });
+
+    it('should warn about not binded passed event', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.websocket.onmessage(new MessageEvent('message', {
+            data: JSON.stringify({ "event": "my_event", "data": {} })
+        }));
+        expect(console.warn).toHaveBeenCalledWith('Passed event « my_event » is not binded.');
+    });
+
+    it('should not warn about binded passed event', function () {
+        var ws = new TornadoWebSocket('/my_app');
+
+        ws.on('my_event', function () {
         });
 
-        expect(ws.reservedEvents.open).toEqual(jasmine.any(Function));
-        ws.reservedEvents.open();
-        expect(console.log).toHaveBeenCalled();
+        ws.websocket.onmessage(new MessageEvent('message', {
+            data: JSON.stringify({ "event": "my_event", "data": {} })
+        }));
+        expect(console.warn).not.toHaveBeenCalled();
+    });
 
-        expect(ws.reservedEvents.close).toEqual(jasmine.any(Function));
-        ws.reservedEvents.close();
-        expect(console.log).toHaveBeenCalled();
+    it('should not throw an exception when callback is a function', function () {
+        var ws = TornadoWebSocket('/my_app');
 
-        expect(ws.reservedEvents.error).toEqual(jasmine.any(Function));
-        ws.reservedEvents.error();
-        expect(console.log).toHaveBeenCalled();
-
-        expect(ws.reservedEvents.message).toEqual(jasmine.any(Function));
-        ws.reservedEvents.message();
-        expect(console.log).toHaveBeenCalled();
+        expect(function () {
+            ws.on('open', function () {
+            });
+        }).not.toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
     });
 
     it('should throw an exception when callback is not a function', function () {
@@ -196,14 +227,11 @@ describe('`TornadoWebSocket::connect()`', function () {
             host: 'kocal.fr'
         });
 
-        ws.on('open', function (socket, event) {
-            expect(socket).toEqual(jasmine.any(TornadoWebSocketClient));
+        ws.on('open', function (event) {
             expect(event).toEqual(jasmine.any(Event));
             expect(event.type).toBe('open');
             done();
         });
-
-        ws.connect();
     });
 
     it('should connect to server and wait close connection', function (done) {
@@ -211,20 +239,15 @@ describe('`TornadoWebSocket::connect()`', function () {
             host: 'kocal.fr'
         });
 
-        ws.on('open', function (socket, event) {
-            expect(socket).toEqual(jasmine.any(TornadoWebSocketClient));
+        ws.on('open', function (event) {
             ws.websocket.close();
         });
 
-        ws.on('close', function (reason, event) {
-            expect(reason).toEqual(jasmine.any(String));
-            expect(reason).toBe(event.reason);
+        ws.on('close', function (event) {
             expect(event).toEqual(jasmine.any(CloseEvent));
             expect(event.type).toBe('close');
             done();
         });
-
-        ws.connect();
     });
 
     it('should connect to a websocket echo server`', function (done) {
@@ -243,10 +266,5 @@ describe('`TornadoWebSocket::connect()`', function () {
         ws.on('error', function () {
             throw new Error("Can not connect to websocket server.");
         });
-
-        expect(function () {
-            ws.connect();
-        }).toThrow(new Error("Can not connect to websocket server."));
     });
-
 });

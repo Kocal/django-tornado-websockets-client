@@ -1,5 +1,6 @@
-tws = (path, options) ->
-    new TornadoWebSocket path, options
+if tws is undefined
+    tws = (path, options) ->
+        new TornadoWebSocket path, options
 
 class TornadoWebSocket
     ###*
@@ -31,7 +32,7 @@ class TornadoWebSocket
         @options = _.merge {
             host: 'localhost',
             port: 8000,
-            secure: false
+            secure: false,
         }, options
 
         ###*
@@ -40,7 +41,7 @@ class TornadoWebSocket
         # @private
         ###
         @path = path.trim()
-        @path = if @path[0] isnt '/' then '/' + @path else @path
+        @path = if @path[0] is '/' then @path else '/' + @path
 
         ###*
         # Generated URL by path and configuration values
@@ -50,40 +51,56 @@ class TornadoWebSocket
         @url = @buildUrl()
 
         ###*
-        # Reserved events (open, close, error and message)
-        # @type {Object}
-        # @private
-        ###
-        @reservedEvents =
-            open: (socket, event) -> console.info 'New connection'
-            close: (reason, event) -> console.info 'Connection closed', reason, event
-            error: (event) -> console.info 'Got an error', event
-            message: (event) -> console.info 'Got a message'
-
-        ###*
         # Events defined by the user
         # @type {Object}
         # @private
         ###
-        @userEvents = {}
+        @events = {}
 
+        @connect()
+
+    ###*
+    # Initialize a new WebSocket connection and bind 'open', 'close', 'error' and 'message' events.
+    ###
     connect: ->
         @websocket = new WebSocket @url
-        @client = new TornadoWebSocketClient @
 
         @websocket.onopen = (event) =>
-            @reservedEvents.open @client, event
+            console.info 'New connection', event
 
         @websocket.onclose = (event) =>
-            @reservedEvents.close event.reason, event
+            console.info 'Connection closed', event
 
         @websocket.onerror = (event) =>
-            @reservedEvents.error event
+            console.info 'Error', event
 
         @websocket.onmessage = (event) =>
-            @client.onmessage event
+            try
+                data = JSON.parse event.data
+            catch e
+                console.warn "Can not parse invalid JSON: ", event.data
+                return
 
-        return @
+            passed_event = data.event
+            passed_data = data.data
+
+            if passed_event is undefined or typeof passed_event isnt 'string'
+                console.warn "Can not get passed event from JSON data."
+                return
+
+            if passed_data is undefined or typeof passed_data isnt 'object'
+                console.warn "Can not get passed data from JSON data."
+                return
+
+            callback = @events[passed_event]
+
+            if callback is undefined or typeof callback isnt 'function'
+                console.warn "Passed event « #{passed_event} » is not binded."
+                return
+
+            callback passed_data
+
+        return
 
     ###*
     # Bind a function to an event.
@@ -94,10 +111,23 @@ class TornadoWebSocket
         if typeof callback isnt 'function'
             throw new TypeError "You must pass a function for 'callback' parameter."
 
-        @reservedEvents[event] = callback
+        if event in ['open', 'close', 'error']
+            @websocket['on' + event] = callback
+        else
+            @events[event] = callback
+
         return
 
-    emit: (event, data={}, broadcast=true) ->
+    ###*
+    # Emit a couple event/data to WebSocket server.
+    # If value of data parameter is not an object, it is converts to `{message: data}` object.
+    # @param {String}    event  Event name
+    # @param {Object|*}  data   Data to send
+    ###
+    emit: (event, data = {}) ->
+        if typeof data isnt 'object'
+            data = { message: data }
+
         data = JSON.stringify
             event: event,
             data: data
