@@ -1,6 +1,29 @@
-if tws is undefined
+if typeof tws isnt 'function'
     tws = (path, options) ->
         new TornadoWebSocket path, options
+
+###*
+# Polyfill for Object.assign()
+###
+if typeof Object.assign isnt 'function'
+    (()-> (
+        Object.assign = (target) ->
+            if(target is null or target is undefined)
+                throw new TypeError 'Cannot convert undefined or null to object'
+
+            output = Object target
+
+            for index in [1...arguments.length]
+                source = arguments[index]
+
+                if (source isnt undefined and source isnt null)
+                    for nextKey in source
+                        if Object.prototype.hasOwnProperty.call source, nextKey
+                            output[nextKey] = source[nextKey]
+
+            return output
+    ))()
+
 
 class TornadoWebSocket
     ###*
@@ -29,7 +52,7 @@ class TornadoWebSocket
         # @type {Object}
         # @private
         ###
-        @options = _.merge {
+        @options = Object.assign {}, {
             host: 'localhost',
             port: 8000,
             secure: false,
@@ -120,7 +143,7 @@ class TornadoWebSocket
 
     ###*
     # Emit a couple event/data to WebSocket server.
-    # If value of data parameter is not an object, it is put into a `{message: data}` object.
+    # If value of data parameter is not an object, it is put into a `{message: data}` object.
     # @param {String}    event  Event name
     # @param {Object|*}  data   Data to send
     ###

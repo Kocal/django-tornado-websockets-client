@@ -15,7 +15,6 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/lodash.js',
             'dist/tornado_websocket.js',
             'tests/*.js'
         ],
