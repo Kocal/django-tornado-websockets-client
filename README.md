@@ -21,6 +21,7 @@ Usage
         host: 'my_host.fr', // 'localhost' by default
         port: 8888,         // '8000' by default
         secure: true,       // 'false' by default
+        autoConnect: false, // 'true' by default
     });
    
     // bind events
@@ -49,11 +50,19 @@ Usage
     });
 ```
 
-Run tests
----------
+Run unit tests
+--------------
 1. Setup your `django-tornado-websockets` WebSocket application and [run Tornado server](http://django-tornado-websockets.readthedocs.io/en/stable/usage.html#run-tornado-server),
-2. `$ npm install`
-3. `$ npm test`
+2. `$ npm install`,
+3. `$ npm test`.
+
+Run examples
+------------
+Examples are made with ES2016, so use a modern browser please. :^)
+
+1. `cd examples`,
+2. `python -m SimpleHTTPServer 8000` or `php -S 0.0.0.0:8000`,
+3. Open your browser at http://localhost:8000 and profit.
 
 Gulp
 ----
