@@ -24,6 +24,6 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - echo "Firefox version => $(firefox -v)"
   - echo "Chromium version => $(chromium-browser --version)"
-  - echo "Opera version => $(opera -v)"
+  - echo "Opera version => $(opera --version)"
 
 script: npm test
