@@ -1,4 +1,4 @@
-if tws is undefined
+if typeof tws isnt 'function'
     tws = (path, options) ->
         new TornadoWebSocket path, options
 
@@ -29,7 +29,7 @@ class TornadoWebSocket
         # @type {Object}
         # @private
         ###
-        @options = _.merge {
+        @options = Object.assign {}, {
             host: 'localhost',
             port: 8000,
             secure: false,
@@ -120,7 +120,7 @@ class TornadoWebSocket
 
     ###*
     # Emit a couple event/data to WebSocket server.
-    # If value of data parameter is not an object, it is put into a `{message: data}` object.
+    # If value of data parameter is not an object, it is put into a `{message: data}` object.
     # @param {String}    event  Event name
     # @param {Object|*}  data   Data to send
     ###

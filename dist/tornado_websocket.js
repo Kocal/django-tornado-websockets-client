@@ -1,6 +1,6 @@
 var TornadoWebSocket, tws;
 
-if (tws === void 0) {
+if (typeof tws !== 'function') {
     tws = function(path, options) {
         return new TornadoWebSocket(path, options);
     };
@@ -35,7 +35,7 @@ TornadoWebSocket = (function() {
          * @type {Object}
          * @private
          */
-        this.options = _.merge({
+        this.options = Object.assign({}, {
             host: 'localhost',
             port: 8000,
             secure: false
@@ -138,7 +138,7 @@ TornadoWebSocket = (function() {
 
     /**
      * Emit a couple event/data to WebSocket server.
-     * If value of data parameter is not an object, it is put into a `{message: data}` object.
+     * If value of data parameter is not an object, it is put into a `{message: data}` object.
      * @param {String}    event  Event name
      * @param {Object|*}  data   Data to send
      */

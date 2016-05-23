@@ -14,7 +14,7 @@ var uglify = require('gulp-uglify');
 var prettify = require('gulp-jsbeautifier');
 
 gulp.task('scripts', function () {
-    return gulp.src(['src/vendor/**/*.js', 'src/**/*.coffee'])
+    return gulp.src(['src/lib/**/*.js', 'src/**/*.coffee'])
         .pipe(plumber({
             errorHandler: function (error) {
                 console.log(error.message, error.location);
