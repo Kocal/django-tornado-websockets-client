@@ -1,6 +1,6 @@
 {
   "name": "django-tornado-websockets-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Client-side library for django-tornado-websockets project",
   "scripts": {
     "test": "node_modules/karma/bin/karma start karma.conf.js"
