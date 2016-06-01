@@ -1,7 +1,7 @@
 # django-tornado-websockets-client
 
-[![Build Status](https://travis-ci.org/Kocal/django-tornado-websockets-client.svg?branch=master)](https://travis-ci.org/Kocal/django-tornado-websockets-client) 
-[![Coverage Status](https://coveralls.io/repos/github/Kocal/django-tornado-websockets-client/badge.svg?branch=master)](https://coveralls.io/github/Kocal/django-tornado-websockets-client?branch=master) 
+[![Build Status](https://travis-ci.org/Kocal/dtws-client.svg?branch=master)](https://travis-ci.org/Kocal/dtws-client)
+[![Coverage Status](https://coveralls.io/repos/github/Kocal/dtws-client/badge.svg?branch=master)](https://coveralls.io/github/Kocal/dtws-client?branch=master)
 [![npm version](https://badge.fury.io/js/django-tornado-websockets-client.svg)](https://badge.fury.io/js/django-tornado-websockets-client)
 
 JavaScript's WebSocket wrapper for [django-tornado-websockets](https://github.com/Kocal/django-tornado-websockets) project, used as a submodule.
