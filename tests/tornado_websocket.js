@@ -142,7 +142,7 @@ describe('`TornadoWebSocket::connect()`', function () {
         ws.connect();
     });
 
-    xit('should connect to a non existing websocket server', function () {
+    it('should connect to a non existing websocket server', function () {
         var ws = new TornadoWebSocket('/i/do/not/exist', { host: 'kocal.fr' });
 
         ws.on('error', function () {
