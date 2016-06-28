@@ -36,7 +36,7 @@ TornadoWebSocket = (function() {
          * @private
          */
         this.options = Object.assign({}, {
-            host: 'localhost',
+            host: location.hostname || 'localhost',
             port: 8000,
             secure: false
         }, options);

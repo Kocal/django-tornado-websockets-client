@@ -30,7 +30,7 @@ class TornadoWebSocket
         # @private
         ###
         @options = Object.assign {}, {
-            host: 'localhost',
+            host: location.hostname || 'localhost',
             port: 8000,
             secure: false,
         }, options
@@ -126,7 +126,8 @@ class TornadoWebSocket
     ###
     emit: (event, data = {}) ->
         if typeof data isnt 'object'
-            data = { message: data }
+            data =
+                message: data
 
         data = JSON.stringify
             event: event,
