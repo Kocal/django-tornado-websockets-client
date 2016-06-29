@@ -1,10 +1,4 @@
-var TornadoWebSocket, tws;
-
-if (typeof tws !== 'function') {
-    tws = function(path, options) {
-        return new TornadoWebSocket(path, options);
-    };
-}
+var TornadoWebSocket;
 
 TornadoWebSocket = (function() {
 
@@ -36,7 +30,7 @@ TornadoWebSocket = (function() {
          * @private
          */
         this.options = Object.assign({}, {
-            host: 'localhost',
+            host: location.hostname || 'localhost',
             port: 8000,
             secure: false
         }, options);
