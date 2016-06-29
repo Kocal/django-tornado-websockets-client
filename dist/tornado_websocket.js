@@ -1,10 +1,4 @@
-var TornadoWebSocket, tws;
-
-if (typeof tws !== 'function') {
-    tws = function(path, options) {
-        return new TornadoWebSocket(path, options);
-    };
-}
+var TornadoWebSocket;
 
 TornadoWebSocket = (function() {
 

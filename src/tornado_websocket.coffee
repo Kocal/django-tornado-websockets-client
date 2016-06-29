@@ -1,7 +1,3 @@
-if typeof tws isnt 'function'
-    tws = (path, options) ->
-        new TornadoWebSocket path, options
-
 class TornadoWebSocket
     ###*
     # Initialize a new WebSocket object with given options.

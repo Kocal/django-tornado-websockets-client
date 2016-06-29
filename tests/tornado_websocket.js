@@ -1,13 +1,4 @@
-/**
- * Created by kocal on 17/05/16.
- */
-
 describe('TornadoWebSocket instances shortcuts', function () {
-
-    it('`tws()` should be an instance of TornadoWebSocket', function () {
-        var ws = tws('/foo');
-        expect(ws instanceof TornadoWebSocket).toBeTruthy()
-    });
 
     it('`TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
         var ws = TornadoWebSocket('/foo');
