@@ -209,7 +209,7 @@ TornadoWebSocketModule = (function() {
             prefix = '';
         }
         if (!(websocket instanceof TornadoWebSocket)) {
-            throw new TypeError("Parameter `websocket` should be an instance of TornadoWebSocket, got " + (typeof options) + " instead.");
+            throw new TypeError("Parameter `websocket` should be an instance of TornadoWebSocket, got " + (typeof websocket) + " instead.");
         }
         this.websocket = websocket;
         this.prefix = "" + prefix;
