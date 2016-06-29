@@ -1,10 +1,10 @@
 class TornadoWebSocketModule
 
-    constructor:(websocket, prefix = '') ->
+    constructor: (websocket, prefix = '') ->
 
         if websocket not instanceof TornadoWebSocket
             throw new TypeError "Parameter `websocket` should be an instance of TornadoWebSocket,
-                                 got #{typeof options} instead."
+                                 got #{typeof websocket} instead."
 
         @websocket = websocket
         @prefix = "" + prefix
