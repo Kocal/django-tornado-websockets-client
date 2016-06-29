@@ -71,14 +71,14 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
 
 describe('`TornadoWebSocket::buildUrl()`', function () {
 
-    it('using default options with suffixed path', function () {
-        var ws = new TornadoWebSocket('/my_app');
+    it('using default options', function () {
+        var ws = new TornadoWebSocket('my_app');
 
         expect(ws.buildUrl(), 'ws://localhost:8000/ws/my_app')
     });
 
-    it('using default options with not suffixed path', function () {
-        var ws = new TornadoWebSocket('my_app');
+    it('using default options with suffixed path', function () {
+        var ws = new TornadoWebSocket('/my_app');
 
         expect(ws.buildUrl(), 'ws://localhost:8000/ws/my_app')
     });
@@ -104,20 +104,8 @@ describe('`TornadoWebSocket::buildUrl()`', function () {
 
 describe('`TornadoWebSocket::connect()`', function () {
 
-    it('should connect to server', function (done) {
-        var ws = new TornadoWebSocket('/my_chat', {
-            host: 'kocal.fr'
-        });
-
-        ws.on('open', function (event) {
-            expect(event).toEqual(jasmine.any(Event));
-            expect(event.type).toBe('open');
-            done();
-        });
-    });
-
-    it('should connect to server and wait close connection', function (done) {
-        var ws = new TornadoWebSocket('/my_chat', {
+    it('should connect to a websocket server', function (done) {
+        var ws = new TornadoWebSocket('/echo', {
             host: 'kocal.fr'
         });
 
@@ -132,25 +120,14 @@ describe('`TornadoWebSocket::connect()`', function () {
         });
     });
 
-    it('should connect to a websocket echo server`', function (done) {
-        var ws = new TornadoWebSocket('/echo', { host: 'kocal.fr' });
-
-        ws.on('open', function () {
-            done();
-        });
-
-        ws.connect();
-    });
-
-    it('should connect to a non existing websocket server', function () {
-        var ws = new TornadoWebSocket('/i/do/not/exist', { host: 'kocal.fr' });
+    it('should not connect to a non existing websocket server', function (done) {
+        var ws = new TornadoWebSocket('/i/do/not/exist', {host: 'kocal.fr'});
 
         ws.on('error', function () {
-            throw new Error("Can not connect to websocket server.");
-        });
+            done();
+        })
     });
 });
-
 
 describe('`TornadoWebSocket::on(event, cb)`', function () {
 
@@ -199,7 +176,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
     it('should warn about invalid JSON', function () {
         var ws = new TornadoWebSocket('/my_app');
 
-        ws.websocket.onmessage(new MessageEvent('message', { data: 'Not JSON.' }));
+        ws.websocket.onmessage(new MessageEvent('message', {data: 'Not JSON.'}));
         expect(console.warn).toHaveBeenCalledWith('Can not parse invalid JSON: ', 'Not JSON.');
     });
 
@@ -207,7 +184,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         var ws = new TornadoWebSocket('/my_app');
 
         ws.websocket.onmessage(new MessageEvent('message', {
-            data: JSON.stringify({ "key": "data" })
+            data: JSON.stringify({"key": "data"})
         }));
         expect(console.warn).toHaveBeenCalledWith('Can not get passed event from JSON data.');
     });
@@ -216,7 +193,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         var ws = new TornadoWebSocket('/my_app');
 
         ws.websocket.onmessage(new MessageEvent('message', {
-            data: JSON.stringify({ "event": "my_event" })
+            data: JSON.stringify({"event": "my_event"})
         }));
         expect(console.warn).toHaveBeenCalledWith('Can not get passed data from JSON data.');
     });
@@ -225,7 +202,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         var ws = new TornadoWebSocket('/my_app');
 
         ws.websocket.onmessage(new MessageEvent('message', {
-            data: JSON.stringify({ "event": "my_event", "data": "Not an object." })
+            data: JSON.stringify({"event": "my_event", "data": "Not an object."})
         }));
         expect(console.warn).toHaveBeenCalledWith('Can not get passed data from JSON data.');
     });
@@ -234,7 +211,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         var ws = new TornadoWebSocket('/my_app');
 
         ws.websocket.onmessage(new MessageEvent('message', {
-            data: JSON.stringify({ "event": "my_event", "data": {} })
+            data: JSON.stringify({"event": "my_event", "data": {}})
         }));
         expect(console.warn).toHaveBeenCalledWith('Passed event « my_event » is not binded.');
     });
@@ -246,7 +223,7 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
         });
 
         ws.websocket.onmessage(new MessageEvent('message', {
-            data: JSON.stringify({ "event": "my_event", "data": {} })
+            data: JSON.stringify({"event": "my_event", "data": {}})
         }));
         expect(console.warn).not.toHaveBeenCalled();
     });
@@ -304,7 +281,7 @@ describe('`TornadoWebSocket::emit(event, data)`', function () {
             key: 'value'
         });
 
-        expect(spyOnMessageCallback).toHaveBeenCalledWith({ key: 'value' });
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({key: 'value'});
         spyOnMessageCallback.calls.reset();
     });
 
@@ -322,11 +299,11 @@ describe('`TornadoWebSocket::emit(event, data)`', function () {
         ws.websocket.onmessage = spyOnMessageCallback;
 
         ws.emit('event', 'A string.');
-        expect(spyOnMessageCallback).toHaveBeenCalledWith({ message: 'A string.' });
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({message: 'A string.'});
         spyOnMessageCallback.calls.reset();
 
         ws.emit('event', 12000);
-        expect(spyOnMessageCallback).toHaveBeenCalledWith({ message: 12000 });
+        expect(spyOnMessageCallback).toHaveBeenCalledWith({message: 12000});
         spyOnMessageCallback.calls.reset();
     });
 
