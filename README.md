@@ -12,11 +12,16 @@ JavaScript's WebSocket wrapper for [django-tornado-websockets](https://github.co
 - Latest: http://django-tornado-websockets.readthedocs.io/en/latest/usage.html#using-websockets-client-side
 - Develop: http://django-tornado-websockets.readthedocs.io/en/develop/usage.html#using-websockets-client-side
 
+## Installation
+
+1. `$ git clone <...>`
+2. `$ npm install`
+3. `# npm -g gulp`
+
 ## Running unit tests
 
 1. Setup your `django-tornado-websockets` WebSocket application and [run Tornado server](http://django-tornado-websockets.readthedocs.io/en/stable/usage.html#run-tornado-server),
-2. `$ npm install`,
-3. `$ npm test`.
+2. `$ npm test`.
 
 ## Running examples
 
