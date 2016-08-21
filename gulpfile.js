@@ -6,36 +6,41 @@
 var gulp    = require('gulp'),
     plumber = require('gulp-plumber'),
     rename  = require('gulp-rename');
+var babel = require("gulp-babel");
 var gulpif = require('gulp-if');
-var coffee = require('gulp-coffee');
 var concat = require('gulp-concat');
-var jshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
 var uglify = require('gulp-uglify');
 var prettify = require('gulp-jsbeautifier');
 
+var filesToWatch = [
+    'src/lib/**/*.js',
+    'src/*.js'
+];
+
 gulp.task('scripts', function () {
-    return gulp.src(['src/lib/**/*.js', 'src/**/*.coffee'])
+    return gulp.src(filesToWatch)
         .pipe(plumber({
             errorHandler: function (error) {
                 console.log(error.message, error.location);
                 this.emit('end');
             }
         }))
-        .pipe(gulpif(/[.]coffee$/, coffee({ bare: true })))
         .pipe(prettify({
             indent_size: 4,
-            indent_with_spaces: false
+            indent_with_tabs: false
         }))
-        .pipe(jshint())
-        .pipe(jshint.reporter('default'))
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(concat('client-es2015.js'))
         .pipe(gulp.dest('dist/'))
-        .pipe(concat('main.js'))
-        .pipe(gulp.dest('dist/'))
-        .pipe(rename({ suffix: '.min' }))
-        .pipe(uglify())
+        .pipe(babel({
+            presets: ['es2015']
+        }))
+        .pipe(concat('client.js'))
         .pipe(gulp.dest('dist/'))
 });
 
 gulp.task('default', function () {
-    gulp.watch(['src/vendor/**/*.js', 'src/**/*.coffee'], ['scripts']);
+    gulp.watch(filesToWatch, ['scripts']);
 });
