@@ -24,6 +24,8 @@ before_install:
   - wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb
   - wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb
   - wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb
+  - sudo apt-get install --only-upgrade libstdc++6
+  - sudo apt-get install --only-upgrade lsb-base
 
 install:
   - sudo apt-get update
