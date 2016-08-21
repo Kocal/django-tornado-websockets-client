@@ -15,9 +15,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/polyfills.js',
-            'dist/tornado_websocket.js',
-            'dist/tornado_websocket_module.js',
+            'dist/client-es2015.js',
             'tests/*.js'
         ],
 
@@ -29,8 +27,8 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
-            'dist/tornado_websocket.js': ['coverage'],
-            'dist/tornado_websocket_module.js': ['coverage']
+            'dist/client.js': ['coverage'],
+            'dist/client-es2015.js': ['coverage']
         },
 
 
