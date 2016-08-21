@@ -9,7 +9,7 @@ describe('`TornadoWebSocketModule::constructor(websocket, prefix)`', function ()
         expect(function () {
             new TornadoWebSocketModule("blabla");
         }).toThrow(
-            new TypeError("Parameter `websocket` should be an instance of TornadoWebSocket, got string instead.")
+            new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket, got string instead.')
         )
     });
 

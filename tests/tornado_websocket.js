@@ -1,24 +1,9 @@
-describe('TornadoWebSocket instances shortcuts', function () {
-
-    it('`TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
-        var ws = TornadoWebSocket('/foo');
-        expect(ws instanceof TornadoWebSocket).toBeTruthy()
-    });
-
-    // In case of :^)
-    it('`new TornadoWebSocket()` should be an instance of TornadoWebSocket', function () {
-        var ws = new TornadoWebSocket('/foo');
-        expect(ws instanceof TornadoWebSocket).toBeTruthy()
-    });
-
-});
-
 describe('`TornadoWebSocket::constructor(path, options)', function () {
 
     it('should raise a ReferenceError exception because there is no "path" parameter', function () {
         expect(function () {
             return new TornadoWebSocket
-        }).toThrowError(ReferenceError, "You must pass 'path' parameter during 'TornadoWebSocket' instantiation.")
+        }).toThrowError(ReferenceError, 'You must pass « path » parameter during instantiation.')
     });
 
     it('should be using default options', function () {
@@ -60,18 +45,18 @@ describe('`TornadoWebSocket::constructor(path, options)', function () {
 
 });
 
-describe('`TornadoWebSocket::buildUrl()`', function () {
+describe('`TornadoWebSocket::build_url()`', function () {
 
     it('using default options', function () {
         var ws = new TornadoWebSocket('my_app');
 
-        expect(ws.buildUrl(), 'ws://localhost:8000/ws/my_app')
+        expect(ws.build_url(), 'ws://localhost:8000/ws/my_app')
     });
 
     it('using default options with suffixed path', function () {
         var ws = new TornadoWebSocket('/my_app');
 
-        expect(ws.buildUrl(), 'ws://localhost:8000/ws/my_app')
+        expect(ws.build_url(), 'ws://localhost:8000/ws/my_app')
     });
 
     it('using secure websocket connection', function () {
@@ -79,7 +64,7 @@ describe('`TornadoWebSocket::buildUrl()`', function () {
             secure: true
         });
 
-        expect(ws.buildUrl(), 'wss://localhost:8000/ws/my_app')
+        expect(ws.build_url(), 'wss://localhost:8000/ws/my_app')
     });
 
     it('using custom host and port', function () {
@@ -88,7 +73,7 @@ describe('`TornadoWebSocket::buildUrl()`', function () {
             port: 8080
         });
 
-        expect(ws.buildUrl(), 'ws://my_host.fr:8080/ws/my_app')
+        expect(ws.build_url(), 'ws://my_host.fr:8080/ws/my_app')
     });
 
 });
@@ -220,20 +205,20 @@ describe('`TornadoWebSocket::on(event, cb)`', function () {
     });
 
     it('should not throw an exception when callback is a function', function () {
-        var ws = TornadoWebSocket('/my_app');
+        var ws = new TornadoWebSocket('/my_app');
 
         expect(function () {
             ws.on('open', function () {
             });
-        }).not.toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
+        }).not.toThrowError(TypeError, 'You must pass a function for « callback » parameter.');
     });
 
     it('should throw an exception when callback is not a function', function () {
-        var ws = TornadoWebSocket('/my_app');
+        var ws = new TornadoWebSocket('/my_app');
 
         expect(function () {
-            ws.on('open', 'not a function');
-        }).toThrowError(TypeError, "You must pass a function for 'callback' parameter.");
+            ws.on('open', 'not a function')
+        }).toThrowError(TypeError, 'You must pass a function for « callback » parameter.');
     });
 
 });
