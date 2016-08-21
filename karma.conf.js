@@ -15,7 +15,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/client-es2015.js',
+            'dist/client.js',
             'tests/*.js'
         ],
 
@@ -89,7 +89,13 @@ module.exports = function (config) {
         configuration.browsers.push('Chrome', 'Firefox', 'Opera')
     }
 
-    // Coveralls
+    // We should test the es6 version if
+    if (process.env.USE_ES6) {
+        console.log('Gonna test the es6 version.')
+        configuration.files[0] = 'dist/client-es6.js'
+    }
+
+    // Coverage
     if (process.env.TRAVIS) {
         console.log('On Travis sending coveralls');
         configuration.reporters.push('coveralls');

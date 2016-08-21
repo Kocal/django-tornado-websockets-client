@@ -9,13 +9,27 @@ addons:
   firefox: "30.0"
 
 env:
-  - BROWSER='Chrome'
-  - BROWSER='Firefox'
-  - BROWSER='Opera'
+  - BROWSER='Chrome'  USE_ES6=0
+  - BROWSER='Chrome'  USE_ES6=1
+  - BROWSER='Firefox' USE_ES6=0
+  - BROWSER='Firefox' USE_ES6=1
+  - BROWSER='Opera'   USE_ES6=0
+  - BROWSER='Opera'   USE_ES6=1
 
 install:
-  - wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb
-  - sudo dpkg -i opera-stable_27.0.1689.54_amd64.deb
+  - sudo apt-get update
+  # Maybe create a bash script which is called only when $USE_ES6 == 1, instead on 12093109832 conditions
+  # The next lines install version of Chrome/Opera/Firefox which supports ES6 Class.
+  - [ $USE_ES6 == 1 ] && sudo apt-get install -y libappindicator1 fonts-liberation
+  - [ $USE_ES6 == 1 ] && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  - [ $USE_ES6 == 1 ] && sudo dpkg -i google-chrome*.deb
+  - [ $USE_ES6 == 1 ] && wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb
+  - [ $USE_ES6 == 1 ] && sudo dpkg -i opera-stable_29.0.1795.60_amd64.deb
+  - [ $USE_ES6 == 1 ] wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb
+  - [ $USE_ES6 == 1 ] sudo dpkg -i firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb
+  # Just download Opera, Chromium and Firefox are already installed
+  - [ $USE_ES6 == 0 ] && wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb
+  - [ $USE_ES6 == 0 ] sudo dpkg -i opera-stable_27.0.1689.54_amd64.deb
   - npm install
 
 before_script:
@@ -25,5 +39,6 @@ before_script:
   - echo "Firefox version => $(firefox -v)"
   - echo "Chromium version => $(chromium-browser --version)"
   - echo "Opera version => $(opera --version)"
+  - echo "Using ES6? => " $USE_ES6
 
 script: npm test

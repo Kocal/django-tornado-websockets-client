@@ -26,7 +26,7 @@ gulp.task('scripts', () => {
         .pipe(eslint())
         .pipe(eslint.format())
 
-        .pipe(concat('client-es2015.js'))
+        .pipe(concat('client-es6.js'))
         .pipe(gulp.dest('dist/'))
 
         .pipe(babel({
