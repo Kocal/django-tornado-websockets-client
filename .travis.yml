@@ -9,12 +9,12 @@ addons:
   firefox: "30.0"
 
 env:
-  - BROWSER='Chrome'  USE_ES6=0
-  - BROWSER='Chrome'  USE_ES6=1
-  - BROWSER='Firefox' USE_ES6=0
-  - BROWSER='Firefox' USE_ES6=1
-  - BROWSER='Opera'   USE_ES6=0
-  - BROWSER='Opera'   USE_ES6=1
+  - BROWSER='Chrome'  USE_ES6=false
+  - BROWSER='Chrome'  USE_ES6=true
+  - BROWSER='Firefox' USE_ES6=false
+  - BROWSER='Firefox' USE_ES6=true
+  - BROWSER='Opera'   USE_ES6=false
+  - BROWSER='Opera'   USE_ES6=true
 
 before_install:
   # For Google Chrome
@@ -28,10 +28,10 @@ before_install:
 install:
   - sudo apt-get update
     # Download and install version of Chrome/Opera/Firefox which supports ES6 Class.
-  - if [[ "$USE_ES6" == 1 ]]; then sudo apt-get install -y libappindicator1 fonts-liberation; fi
-  - if [[ "$USE_ES6" == 1 ]]; then sudo dpkg -i google-chrome*.deb opera-stable_29*.deb firefox-mozilla-build_45*.deb; fi
+  - if [[ "$USE_ES6" == true ]]; then sudo apt-get install -y libappindicator1 fonts-liberation; fi
+  - if [[ "$USE_ES6" == true ]]; then sudo dpkg -i google-chrome*.deb opera-stable_29*.deb firefox-mozilla-build_45*.deb; fi
      # Just download Opera, Chromium and Firefox are already installed
-  - if [[ "$USE_ES6" == 0 ]]; then sudo dpkg -i opera-stable_27*.deb; fi
+  - if [[ "$USE_ES6" == false ]]; then sudo dpkg -i opera-stable_27*.deb; fi
   - npm install
 
 before_script:
