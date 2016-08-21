@@ -18,8 +18,8 @@ env:
 
 before_install:
   # For Google Chrome
-  - sudo echo "deb http://security.ubuntu.com/ubuntu trusty-security main" > /etc/apt/sources.list
-  - sudo echo "deb http://cz.archive.ubuntu.com/ubuntu trusty main" > /etc/apt/sources.list
+  - echo "deb http://security.ubuntu.com/ubuntu trusty-security main" | sudo tee -a /etc/apt/sources.list
+  - echo "deb http://cz.archive.ubuntu.com/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list
   - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   - wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb
   - wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb
