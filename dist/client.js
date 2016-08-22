@@ -134,7 +134,7 @@ var TornadoWebSocket = function () {
                 throw new TypeError('You must pass a function for « callback » parameter.');
             }
 
-            if (['open', 'close', 'error'].includes(event)) {
+            if (['open', 'close', 'error'].indexOf(event) !== -1) {
                 this.websocket['on' + event] = callback;
             } else {
                 this.events[event] = callback;
