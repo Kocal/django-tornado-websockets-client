@@ -90,7 +90,7 @@ module.exports = function (config) {
     }
 
     // We should test the es6 version if
-    if (process.env.USE_ES6) {
+    if (process.env.USE_ES6 == 'true') {
         console.log('Gonna test the es6 version.')
         configuration.files[0] = 'dist/client-es6.js'
     }
