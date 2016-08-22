@@ -31,16 +31,16 @@ before_install:
 
 install:
   - sudo apt-get update
+  # Download and install version of Chrome/Opera/Firefox which supports ES6 Class.
   - >
-    # Download and install version of Chrome/Opera/Firefox which supports ES6 Class.
     if [[ "$USE_ES6" == true ]]; then
         sudo apt-get install -y libappindicator1 fonts-liberation
         sudo dpkg -i /tmp/google-chrome*.deb /tmp/opera-stable_39*.deb
         tar -xjf /tmp/firefox-45.0.2.tar.bz2 --directory /tmp/firefox-45.0.2
         export PATH="/tmp/firefox-45.0.2/firefox:$PATH"
     fi
+  # Just download Opera, Chromium and Firefox are already installed
   - >
-     # Just download Opera, Chromium and Firefox are already installed
       if [[ "$USE_ES6" == false ]]; then
           sudo dpkg -i opera-stable_27*.deb
       fi
