@@ -28,7 +28,7 @@ module.exports = function (config) {
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
             'dist/client.js': ['coverage'],
-            'dist/client-es2015.js': ['coverage']
+            'dist/client-es6.js': ['coverage']
         },
 
 
