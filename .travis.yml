@@ -20,14 +20,14 @@ env:
 before_install:
   - if [[ "$USE_ES6" == true ]]; then wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; fi
   - if [[ "$USE_ES6" == true ]]; then wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb; fi
-  - if [[ "$USE_ES6" == true ]]; then wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb; fi
+  - if [[ "$USE_ES6" == true ]]; then wget http://download1.operacdn.com/pub/opera/desktop/39.0.2256.48/linux/opera-stable_39.0.2256.48_amd64.deb; fi
   - if [[ "$USE_ES6" == false ]]; then wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb; fi
 
 install:
   - sudo apt-get update
     # Download and install version of Chrome/Opera/Firefox which supports ES6 Class.
   - if [[ "$USE_ES6" == true ]]; then sudo apt-get install -y libappindicator1 fonts-liberation; fi
-  - if [[ "$USE_ES6" == true ]]; then sudo dpkg -i google-chrome*.deb opera-stable_29*.deb firefox-mozilla-build_45*.deb; fi
+  - if [[ "$USE_ES6" == true ]]; then sudo dpkg -i google-chrome*.deb opera-stable_39*.deb firefox-mozilla-build_45*.deb; fi
      # Just download Opera, Chromium and Firefox are already installed
   - if [[ "$USE_ES6" == false ]]; then sudo dpkg -i opera-stable_27*.deb; fi
   - npm install
