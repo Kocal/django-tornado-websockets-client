@@ -1,6 +1,7 @@
 language: node_js
 
 sudo: required
+dist: trusty
 
 node_js:
     - 5.1
@@ -17,15 +18,10 @@ env:
   - BROWSER='Opera'   USE_ES6=true
 
 before_install:
-  # For Google Chrome
-  - echo "deb http://security.ubuntu.com/ubuntu trusty-security main" | sudo tee -a /etc/apt/sources.list
-  - echo "deb http://cz.archive.ubuntu.com/ubuntu trusty main" | sudo tee -a /etc/apt/sources.list
-  - wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  - wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb
-  - wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb
-  - wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb
-  - sudo apt-get install --only-upgrade libstdc++6
-  - sudo apt-get install --only-upgrade lsb-base
+  - if [[ "$USE_ES6" == true ]]; then wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb; fi
+  - if [[ "$USE_ES6" == true ]]; then wget http://kent.dl.sourceforge.net/project/ubuntuzilla/mozilla/apt/pool/main/f/firefox-mozilla-build/firefox-mozilla-build_45.0.2-0ubuntu1_amd64.deb; fi
+  - if [[ "$USE_ES6" == true ]]; then wget http://download1.operacdn.com/pub/opera/desktop/29.0.1795.60/linux/opera-stable_29.0.1795.60_amd64.deb; fi
+  - if [[ "$USE_ES6" == false ]]; then wget http://download1.operacdn.com/pub/opera/desktop/27.0.1689.54/linux/opera-stable_27.0.1689.54_amd64.deb; fi
 
 install:
   - sudo apt-get update
@@ -37,7 +33,6 @@ install:
   - npm install
 
 before_script:
-  - export CHROME_BIN=chromium-browser
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - echo "Firefox version => $(firefox -v)"
