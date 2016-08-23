@@ -15,7 +15,6 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            'dist/client.js',
             'tests/*.js'
         ],
 
@@ -26,10 +25,7 @@ module.exports = function (config) {
 
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {
-            'dist/client.js': ['coverage'],
-            'dist/client-es6.js': ['coverage']
-        },
+        preprocessors: {},
 
 
         // test results reporter to use
@@ -91,20 +87,27 @@ module.exports = function (config) {
 
     // We should test the es6 version if
     if (process.env.USE_ES6 == 'true') {
-        console.log('Gonna test the es6 version.')
-        configuration.files[0] = 'dist/client-es6.js'
+        console.log('Test the ES6 version.')
+
+        configuration.files.unshift('dist/client-es6.js')
+        configuration.preprocessors['dist/client-es6.js'] = ['coverage']
+    } else {
+        console.log('Do not test the ES6 version,')
+
+        configuration.files.unshift('dist/client.js')
+        configuration.preprocessors['dist/client.js'] = ['coverage']
     }
 
     // Coverage
     if (process.env.TRAVIS) {
-        console.log('On Travis sending coveralls');
+        console.log('On Travis, sending coverage to Coveralls');
         configuration.reporters.push('coveralls');
         configuration.coverageReporter = {
             type: 'lcov',
             dir: 'coverage'
         };
     } else {
-        console.log('Not on Travis so not sending coveralls');
+        console.log('Not on Travis, do not sending coverage to Coveralls');
         configuration.coverageReporter = {
             type: 'html',
             dir: 'coverage'
