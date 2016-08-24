@@ -24,7 +24,14 @@
       "never"
     ]
   },
+  "parserOptions": {
+    "sourceType": "module"
+  },
   "globals": {
-    "TornadoWebSocket": true
+    "TornadoWebSocket": true,
+    "define": true,
+    "module": true,
+    "require": true,
+    "process": true
   }
 }
