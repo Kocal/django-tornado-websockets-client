@@ -7,61 +7,52 @@ module.exports = function (config) {
         // base path that will be used to resolve all patterns (eg. files, exclude)
         basePath: '',
 
-
         // frameworks to use
         // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-        frameworks: ['jasmine'],
-
+        frameworks: ['jasmine', 'requirejs'],
 
         // list of files / patterns to load in the browser
         files: [
-            'tests/*.js'
+            {pattern: 'dist/client-es6.js', included: false},
+            {pattern: 'dist/client.js', included: false},
+            {pattern: 'tests/*_test.js', included: false},
+            'tests/test-main.js'
         ],
-
 
         // list of files to exclude
         exclude: [],
-
-
-        // preprocess matching files before serving them to the browser
-        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-        preprocessors: {},
-
 
         // test results reporter to use
         // possible values: 'dots', 'progress'
         // available reporters: https://npmjs.org/browse/keyword/karma-reporter
         reporters: ['mocha', 'coverage'],
 
+        // preprocess matching files before serving them to the browser
+        // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+        preprocessors: {
+            '**/*.js': ['env'], // Pass environment variables to our JS files
+            'dist/client-es6.js': ['coverage'],
+            'dist/client.js': ['coverage'],
+        },
 
         // web server port
         port: 9876,
 
-
         // enable / disable colors in the output (reporters and logs)
         colors: true,
-
 
         // level of logging
         // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
         logLevel: config.LOG_INFO,
 
-
         // enable / disable watching file and executing tests whenever any file changes
         autoWatch: false,
-
 
         // start these browsers
         // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
         browsers: [],
 
-        customLaunchers: {
-            Chrome_travis_ci: {
-                base: 'Chrome',
-                flags: ['--no-sandbox']
-            }
-        },
-
+        customLaunchers: {},
 
         // Continuous Integration mode
         // if true, Karma captures browsers, runs the tests and exits
@@ -69,45 +60,46 @@ module.exports = function (config) {
 
         // Concurrency level
         // how many browser should be started simultaneous
-        concurrency: Infinity
-    };
+        concurrency: Infinity,
 
-    // Browser
+        // Pass USE_ES6 env. variable
+        envPreprocessor: [
+            'USE_ES6',
+        ]
+    }
+
+    // --- Browser configuration
     if (process.env.TRAVIS) {
-        var browser = process.env.BROWSER;
+        // Run tests on Firefox/Chrome/Opera one by one
+        var browser = process.env.BROWSER
 
         if (browser == 'Chrome') {
-            browser = 'Chrome_travis_ci';
+            configuration.customLaunchers['Chrome_travis_ci'] = {
+                base: 'Chrome',
+                flags: ['--no-sandbox']
+            }
+
+            browser = 'Chrome_travis_ci'
         }
 
-        configuration.browsers.push(browser);
+        configuration.browsers.push(browser)
     } else {
+        // On my computers, just run tests on all browsers I have
         configuration.browsers.push('Chrome', 'Firefox', 'Opera')
     }
 
-    // We should test the es6 version if
-    if (process.env.USE_ES6 == 'true') {
-        console.log('Test the ES6 version.')
+    console.log('Run tests on:' + configuration.browsers.join(', '))
 
-        configuration.files.unshift('dist/client-es6.js')
-        configuration.preprocessors['dist/client-es6.js'] = ['coverage']
-    } else {
-        console.log('Do not test the ES6 version,')
-
-        configuration.files.unshift('dist/client.js')
-        configuration.preprocessors['dist/client.js'] = ['coverage']
-    }
-
-    // Coverage
+    // --- Coverage configuration
     if (process.env.TRAVIS) {
-        console.log('On Travis, sending coverage to Coveralls');
-        configuration.reporters.push('coveralls');
+        console.log('Send coverage files to Coveralls')
+        configuration.reporters.push('coveralls')
         configuration.coverageReporter = {
             type: 'lcov',
             dir: 'coverage'
-        };
+        }
     } else {
-        console.log('Not on Travis, do not sending coverage to Coveralls');
+        console.log('Save coverage files in local')
         configuration.coverageReporter = {
             type: 'html',
             dir: 'coverage'
@@ -115,4 +107,4 @@ module.exports = function (config) {
     }
 
     config.set(configuration)
-};
+}
