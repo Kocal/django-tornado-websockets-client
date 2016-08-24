@@ -36,7 +36,7 @@
             /**
              * Configuration values
              * @type {Object}
-       onc là tout le monde a suivi la meuf et personne a trouvé que c'était une mauvaise idée... Y en a faut les cramer       * @private
+             * @private
              */
             this.options = Object.assign({}, {
                 host: location.hostname || 'localhost',
