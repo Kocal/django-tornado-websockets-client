@@ -3,7 +3,8 @@
     "include": [
       "package.json",
       "README.md",
-      "dist/client-es6.js"
+      "dist/client-es6.js",
+      "dist/modules/progress_bar-es6.js"
     ]
   },
   "plugins": [

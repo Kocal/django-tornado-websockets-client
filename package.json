@@ -36,6 +36,7 @@
     "gulp-jsbeautifier": "^2.0.3",
     "gulp-jshint": "1.10.0",
     "gulp-plumber": "1.0.0",
+    "gulp-rename": "^1.2.2",
     "jaguarjs-jsdoc": "^1.0.0",
     "jasmine": "^2.4.1",
     "jasmine-core": "^2.4.1",
