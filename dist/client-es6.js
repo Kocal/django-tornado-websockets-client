@@ -4,18 +4,41 @@
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory()
     } else {
-        root.returnExports = factory()
+        root.TornadoWebSocket = factory()
     }
 }(this, function() {
     'use strict'
 
     /**
      * Open a WebSocket connection between the client and the django-tornado-websocket server.
+     * @example
+     * let tws = new TornadoWebSocket('chat', { port: 8080 })
+     *
+     * tws.on('connect', event => {
+     *     // Send the event 'user_joined' to the server
+     *     tws.emit('user_joined', { user_id: 1 })
+     *
+     *     // And the server send the same event to the client
+     *     tws.on('user_joined', user => {
+     *         console.log(user.name)
+     *         console.log(user.firstname)
+     *     })
+     * })
+     *
+     * tws.on('error', event => {
+     *     console.log('Error: ', event)
+     * })
+     *
+     * tws.on('close', event => {
+     *     console.log('Close: ', event)
+     * })
+     *
      */
     class TornadoWebSocket {
 
         /**
          * Initialize a new WebSocket object with given options.
+         *
          * @param {String}   path            Url of a django-tornado-websockets application
          * @param {Object}   options         Object options
          * @param {String}   options.host    Host used for connection
@@ -36,7 +59,7 @@
             /**
              * Configuration values
              * @type {Object}
-       onc là tout le monde a suivi la meuf et personne a trouvé que c'était une mauvaise idée... Y en a faut les cramer       * @private
+             * @private
              */
             this.options = Object.assign({}, {
                 host: location.hostname || 'localhost',
@@ -166,15 +189,17 @@
         }
     }
 
-    TornadoWebSocket.Module = class Module {
-
+    TornadoWebSocket.Module = class {
         constructor(name = '') {
+
+            if (this.constructor === TornadoWebSocket.Module) {
+                throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.')
+            }
+
             this.name = '' + name
         }
 
         /**
-         *
-         *
          * @param websocket
          */
         bindWebsocket(websocket) {

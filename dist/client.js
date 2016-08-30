@@ -14,19 +14,42 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
         module.exports = factory();
     } else {
-        root.returnExports = factory();
+        root.TornadoWebSocket = factory();
     }
 })(undefined, function () {
     'use strict';
 
     /**
      * Open a WebSocket connection between the client and the django-tornado-websocket server.
+     * @example
+     * let tws = new TornadoWebSocket('chat', { port: 8080 })
+     *
+     * tws.on('connect', event => {
+     *     // Send the event 'user_joined' to the server
+     *     tws.emit('user_joined', { user_id: 1 })
+     *
+     *     // And the server send the same event to the client
+     *     tws.on('user_joined', user => {
+     *         console.log(user.name)
+     *         console.log(user.firstname)
+     *     })
+     * })
+     *
+     * tws.on('error', event => {
+     *     console.log('Error: ', event)
+     * })
+     *
+     * tws.on('close', event => {
+     *     console.log('Close: ', event)
+     * })
+     *
      */
 
     var TornadoWebSocket = function () {
 
         /**
          * Initialize a new WebSocket object with given options.
+         *
          * @param {String}   path            Url of a django-tornado-websockets application
          * @param {Object}   options         Object options
          * @param {String}   options.host    Host used for connection
@@ -51,7 +74,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             /**
              * Configuration values
              * @type {Object}
-            onc là tout le monde a suivi la meuf et personne a trouvé que c'était une mauvaise idée... Y en a faut les cramer       * @private
+             * @private
              */
             this.options = _extends({}, {
                 host: location.hostname || 'localhost',
@@ -201,22 +224,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }();
 
     TornadoWebSocket.Module = function () {
-        function Module() {
+        function _class() {
             var name = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
-            _classCallCheck(this, Module);
+            _classCallCheck(this, _class);
+
+            if (this.constructor === TornadoWebSocket.Module) {
+                throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.');
+            }
 
             this.name = '' + name;
         }
 
         /**
-         *
-         *
          * @param websocket
          */
 
 
-        _createClass(Module, [{
+        _createClass(_class, [{
             key: 'bindWebsocket',
             value: function bindWebsocket(websocket) {
                 if (!(websocket instanceof TornadoWebSocket)) {
@@ -257,7 +282,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }]);
 
-        return Module;
+        return _class;
     }();
 
     return TornadoWebSocket;
