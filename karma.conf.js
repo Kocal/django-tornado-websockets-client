@@ -88,7 +88,7 @@ module.exports = function (config) {
         configuration.browsers.push('Chrome', 'Firefox', 'Opera')
     }
 
-    console.log('Run tests on:' + configuration.browsers.join(', '))
+    console.log('Run tests on: ' + configuration.browsers.join(', '))
 
     // --- Coverage configuration
     if (process.env.TRAVIS) {
