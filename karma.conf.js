@@ -13,8 +13,7 @@ module.exports = function (config) {
 
         // list of files / patterns to load in the browser
         files: [
-            {pattern: 'dist/client-es6.js', included: false},
-            {pattern: 'dist/client.js', included: false},
+            {pattern: 'dist/**/*.js', included: false},
             {pattern: 'tests/*_test.js', included: false},
             'tests/test-main.js'
         ],
@@ -30,9 +29,8 @@ module.exports = function (config) {
         // preprocess matching files before serving them to the browser
         // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
         preprocessors: {
+            'dist/**/*.js': ['coverage'],
             '**/*.js': ['env'], // Pass environment variables to our JS files
-            'dist/client-es6.js': ['coverage'],
-            'dist/client.js': ['coverage'],
         },
 
         // web server port
