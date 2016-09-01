@@ -192,9 +192,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
                 if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') {
-                    data = {
-                        message: data
-                    };
+                    data = { message: data };
                 }
 
                 var frame = JSON.stringify({

@@ -1,4 +1,4 @@
-(function(root, factory) {
+(function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory)
     } else if (typeof module === 'object' && module.exports) {
@@ -6,7 +6,7 @@
     } else {
         root.TornadoWebSocket = factory()
     }
-}(this, function() {
+}(this, function () {
     'use strict'
 
     /**
@@ -164,9 +164,7 @@
          */
         emit(event, data = {}) {
             if (typeof data !== 'object') {
-                data = {
-                    message: data
-                }
+                data = {message: data}
             }
 
             let frame = JSON.stringify({
@@ -192,7 +190,7 @@
     TornadoWebSocket.Module = class {
         constructor(name = '') {
 
-            if (this.constructor === TornadoWebSocket.Module) {
+            if(this.constructor === TornadoWebSocket.Module) {
                 throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.')
             }
 
