@@ -29,9 +29,13 @@
   },
   "globals": {
     "TornadoWebSocket": true,
+    // modules
     "define": true,
     "module": true,
     "require": true,
-    "process": true
+    // jasmine
+    "describe": true,
+    "expect": true,
+    "it": true
   }
 }
