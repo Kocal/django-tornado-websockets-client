@@ -14,9 +14,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['../client-es6'], factory);
+        define(['tornadowebsocket'], factory);
     } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
-        module.exports = factory(require('../client-es6'));
+        module.exports = factory(require('tornadowebsocket'));
     } else {
         root.ProgressBarModule = factory(root.TornadoWebSocket);
     }

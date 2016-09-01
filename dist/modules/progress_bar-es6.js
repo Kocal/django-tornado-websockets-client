@@ -1,8 +1,8 @@
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
-        define(['../client-es6'], factory)
+        define(['tornadowebsocket-es6'], factory)
     } else if (typeof module === 'object' && module.exports) {
-        module.exports = factory(require('../client-es6'))
+        module.exports = factory(require('tornadowebsocket-es6'))
     } else {
         root.ProgressBarModule = factory(root.TornadoWebSocket)
     }
