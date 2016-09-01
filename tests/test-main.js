@@ -4,6 +4,10 @@
  */
 
 var testFiles = []
+var requirejsPaths = {
+    'tornadowebsocket': './dist/tornadowebsocket',
+    'progressbar': './dist/modules/progress_bar',
+}
 
 // Let's found our test files
 Object.keys(window.__karma__.files).forEach(function (file) {
@@ -16,17 +20,26 @@ Object.keys(window.__karma__.files).forEach(function (file) {
 
         testFiles.push(normalizedTestModule)
     }
-});
+})
+
+if (window.__env__['USE_ES6'] == 'true') {
+    for (var path in requirejsPaths) {
+        requirejsPaths[path + '-es6'] = requirejsPaths[path] + '-es6'
+        delete requirejsPaths[path]
+    }
+}
+
+window.__env__['dependencies'] = Object.keys(requirejsPaths)
+
+console.log('RequireJS files :', requirejsPaths)
+console.log('Dependencies are :', window.__env__['dependencies'])
 
 requirejs.config({
     // Karma serves files under /base, which is the basePath from your config file
     baseUrl: '/base',
 
     // Configure our module
-    paths: {
-        // Should use ES6 version of our module or not
-        'tornadowebsocket': window.__env__['USE_ES6'] == 'true' ? './dist/client-es6' : './dist/client',
-    },
+    paths: requirejsPaths,
 
     // Ask Require.js to load these files (all our tests)
     deps: testFiles,
