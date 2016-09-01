@@ -42,7 +42,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
      * tws.on('close', event => {
      *     console.log('Close: ', event)
      * })
-     *
      */
 
     var TornadoWebSocket = function () {

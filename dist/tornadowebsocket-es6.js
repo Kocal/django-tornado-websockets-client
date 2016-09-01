@@ -32,7 +32,6 @@
      * tws.on('close', event => {
      *     console.log('Close: ', event)
      * })
-     *
      */
     class TornadoWebSocket {
 
