@@ -2,7 +2,6 @@ import gulp from 'gulp'
 import plumber from 'gulp-plumber'
 import babel from 'gulp-babel'
 import eslint from 'gulp-eslint'
-import prettify from 'gulp-jsbeautifier'
 import rename from 'gulp-rename'
 
 const jsFiles = ['src/**/*.js']
@@ -14,10 +13,6 @@ gulp.task('scripts', () => {
                 console.log(error.message, error.location)
                 this.emit('end')
             }
-        }))
-        .pipe(prettify({
-            indent_size: 4,
-            indent_with_tabs: false
         }))
 
         .pipe(eslint())
