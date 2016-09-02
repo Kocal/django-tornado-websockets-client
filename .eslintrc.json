@@ -34,6 +34,7 @@
     "module": true,
     "require": true,
     // jasmine
+    "jasmine": true,
     "describe": true,
     "expect": true,
     "it": true
