@@ -1,7 +1,10 @@
 {
   "env": {
+    "amd": true,
     "browser": true,
-    "es6": true
+    "es6": true,
+    "jasmine": true,
+    "node": true
   },
   "extends": "eslint:recommended",
   "rules": {
@@ -28,15 +31,6 @@
     "sourceType": "module"
   },
   "globals": {
-    "TornadoWebSocket": true,
-    // modules
-    "define": true,
-    "module": true,
-    "require": true,
-    // jasmine
-    "jasmine": true,
-    "describe": true,
-    "expect": true,
-    "it": true
+    "TornadoWebSocket": true
   }
 }
