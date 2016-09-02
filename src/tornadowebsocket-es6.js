@@ -93,19 +93,30 @@
         }
 
         /**
+         * Return an URL built from `this.options`.
+         * Path is auto-prefixed by "/ws".
+         * @returns {String}
+         */
+        build_url() {
+            let protocol = this.options.secure ? 'wss' : 'ws'
+
+            return `${protocol}://${this.options.host}:${this.options.port}/ws${this.path}`
+        }
+
+        /**
          * Initialize a new WebSocket connection and bind 'open', 'close', 'error' and 'message' events.
          */
         connect() {
             this.websocket = new WebSocket(this.url)
 
             this.websocket.onopen = event => {
-                console.info('New connection', event)
+                console.info('TornadoWebSocket: New connection', event)
             }
             this.websocket.onclose = event => {
-                console.info('Connection closed', event)
+                console.info('TornadoWebSocket: Connection closed', event)
             }
             this.websocket.onerror = event => {
-                console.info('Error', event)
+                console.info('TornadoWebSocket: Error', event)
             }
 
             this.websocket.onmessage = event => {
@@ -174,23 +185,12 @@
 
             this.websocket.send(frame)
         }
-
-        /**
-         * Return an URL built from `this.options`.
-         * Path is auto-prefixed by "/ws".
-         * @returns {String}
-         */
-        build_url() {
-            let protocol = this.options.secure ? 'wss' : 'ws'
-
-            return `${protocol}://${this.options.host}:${this.options.port}/ws${this.path}`
-        }
     }
 
     TornadoWebSocket.Module = class {
         constructor(name = '') {
 
-            if(this.constructor === TornadoWebSocket.Module) {
+            if (this.constructor === TornadoWebSocket.Module) {
                 throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.')
             }
 
@@ -200,7 +200,7 @@
         /**
          * @param websocket
          */
-        bindWebsocket(websocket) {
+        bind_websocket(websocket) {
             if (!(websocket instanceof TornadoWebSocket)) {
                 throw new TypeError(
                     `Parameter « websocket » should be an instance of TornadoWebSocket, got ${typeof websocket} instead.`

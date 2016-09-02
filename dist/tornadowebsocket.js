@@ -108,11 +108,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         /**
-         * Initialize a new WebSocket connection and bind 'open', 'close', 'error' and 'message' events.
+         * Return an URL built from `this.options`.
+         * Path is auto-prefixed by "/ws".
+         * @returns {String}
          */
 
 
         _createClass(TornadoWebSocket, [{
+            key: 'build_url',
+            value: function build_url() {
+                var protocol = this.options.secure ? 'wss' : 'ws';
+
+                return protocol + '://' + this.options.host + ':' + this.options.port + '/ws' + this.path;
+            }
+
+            /**
+             * Initialize a new WebSocket connection and bind 'open', 'close', 'error' and 'message' events.
+             */
+
+        }, {
             key: 'connect',
             value: function connect() {
                 var _this = this;
@@ -120,13 +134,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.websocket = new WebSocket(this.url);
 
                 this.websocket.onopen = function (event) {
-                    console.info('New connection', event);
+                    console.info('TornadoWebSocket: New connection', event);
                 };
                 this.websocket.onclose = function (event) {
-                    console.info('Connection closed', event);
+                    console.info('TornadoWebSocket: Connection closed', event);
                 };
                 this.websocket.onerror = function (event) {
-                    console.info('Error', event);
+                    console.info('TornadoWebSocket: Error', event);
                 };
 
                 this.websocket.onmessage = function (event) {
@@ -202,20 +216,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 this.websocket.send(frame);
             }
-
-            /**
-             * Return an URL built from `this.options`.
-             * Path is auto-prefixed by "/ws".
-             * @returns {String}
-             */
-
-        }, {
-            key: 'build_url',
-            value: function build_url() {
-                var protocol = this.options.secure ? 'wss' : 'ws';
-
-                return protocol + '://' + this.options.host + ':' + this.options.port + '/ws' + this.path;
-            }
         }]);
 
         return TornadoWebSocket;
@@ -240,8 +240,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 
         _createClass(_class, [{
-            key: 'bindWebsocket',
-            value: function bindWebsocket(websocket) {
+            key: 'bind_websocket',
+            value: function bind_websocket(websocket) {
                 if (!(websocket instanceof TornadoWebSocket)) {
                     throw new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket, got ' + (typeof websocket === 'undefined' ? 'undefined' : _typeof(websocket)) + ' instead.');
                 }
