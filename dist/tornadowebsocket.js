@@ -140,7 +140,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     console.info('TornadoWebSocket: Connection closed', event);
                 };
                 this.websocket.onerror = function (event) {
-                    console.info('TornadoWebSocket: Error', event);
+                    console.error('TornadoWebSocket: Error', event);
                 };
 
                 this.websocket.onmessage = function (event) {

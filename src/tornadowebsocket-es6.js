@@ -116,7 +116,7 @@
                 console.info('TornadoWebSocket: Connection closed', event)
             }
             this.websocket.onerror = event => {
-                console.info('TornadoWebSocket: Error', event)
+                console.error('TornadoWebSocket: Error', event)
             }
 
             this.websocket.onmessage = event => {
