@@ -60,6 +60,10 @@ module.exports = function (config) {
         // how many browser should be started simultaneous
         concurrency: Infinity,
 
+        client: {
+            captureConsole: false
+        },
+
         // Pass USE_ES6 env. variable
         envPreprocessor: [
             'USE_ES6',
