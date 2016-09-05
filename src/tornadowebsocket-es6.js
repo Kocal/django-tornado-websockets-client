@@ -120,32 +120,32 @@
             }
 
             this.websocket.onmessage = event => {
+                // Throwing locally a based-Error message in the next try/catch block saves me to write multiple times
+                // `console.warn` and `return`.
+                // Instead, I throw a based-Error message and use console.warn in the catch block.
                 try {
                     let data = JSON.parse(event.data)
-                    let passed_event = data.event
-                    let passed_data = data.data
+                    let passed_event, passed_data, callback
 
-                    if (passed_event === undefined || typeof passed_event !== 'string') {
-                        console.warn('Can not get passed event from JSON data.')
-                        return
+                    if ((passed_event = data.event) === void 0) {
+                        throw new ReferenceError('Can not get passed event from JSON data.')
                     }
 
-                    if (passed_data === undefined || typeof passed_data !== 'object') {
-                        console.warn('Can not get passed data from JSON data.')
-                        return
+                    if ((passed_data = data.data) === void 0) {
+                        throw new ReferenceError('Can not get passed data from JSON data.')
                     }
 
-                    let callback = this.events[passed_event]
-
-                    if (callback === undefined || typeof callback !== 'function') {
-                        console.warn(`Passed event « ${passed_event} » is not binded.`)
-                        return
+                    if ((callback = this.events[passed_event]) === void 0) {
+                        throw new ReferenceError(`Event « ${passed_event} » is not binded.`)
                     }
 
                     callback(passed_data)
-
                 } catch (e) {
-                    console.warn('Can not parse invalid JSON: ', event.data)
+                    if (e instanceof SyntaxError) {  // JSON.parse()
+                        console.warn('TornadoWebSocket: Can not parse invalid JSON.')
+                    } else {
+                        console.warn(`TornadoWebSocket: ${e.message}`)
+                    }
                 }
             }
         }
@@ -188,13 +188,13 @@
     }
 
     TornadoWebSocket.Module = class {
-        constructor(name = '') {
+        constructor(prefix = '') {
 
             if (this.constructor === TornadoWebSocket.Module) {
                 throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.')
             }
 
-            this.name = '' + name
+            this.name = '' + prefix
         }
 
         /**
@@ -202,9 +202,7 @@
          */
         bind_websocket(websocket) {
             if (!(websocket instanceof TornadoWebSocket)) {
-                throw new TypeError(
-                    `Parameter « websocket » should be an instance of TornadoWebSocket, got ${typeof websocket} instead.`
-                )
+                throw new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket.')
             }
 
             this.websocket = websocket

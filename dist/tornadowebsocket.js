@@ -144,31 +144,35 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 };
 
                 this.websocket.onmessage = function (event) {
+                    // Throwing locally a based-Error message in the next try/catch block saves me to write multiple times
+                    // `console.warn` and `return`.
+                    // Instead, I throw a based-Error message and use console.warn in the catch block.
                     try {
                         var data = JSON.parse(event.data);
-                        var passed_event = data.event;
-                        var passed_data = data.data;
+                        var passed_event = void 0,
+                            passed_data = void 0,
+                            callback = void 0;
 
-                        if (passed_event === undefined || typeof passed_event !== 'string') {
-                            console.warn('Can not get passed event from JSON data.');
-                            return;
+                        if ((passed_event = data.event) === void 0) {
+                            throw new ReferenceError('Can not get passed event from JSON data.');
                         }
 
-                        if (passed_data === undefined || (typeof passed_data === 'undefined' ? 'undefined' : _typeof(passed_data)) !== 'object') {
-                            console.warn('Can not get passed data from JSON data.');
-                            return;
+                        if ((passed_data = data.data) === void 0) {
+                            throw new ReferenceError('Can not get passed data from JSON data.');
                         }
 
-                        var callback = _this.events[passed_event];
-
-                        if (callback === undefined || typeof callback !== 'function') {
-                            console.warn('Passed event « ' + passed_event + ' » is not binded.');
-                            return;
+                        if ((callback = _this.events[passed_event]) === void 0) {
+                            throw new ReferenceError('Event « ' + passed_event + ' » is not binded.');
                         }
 
                         callback(passed_data);
                     } catch (e) {
-                        console.warn('Can not parse invalid JSON: ', event.data);
+                        if (e instanceof SyntaxError) {
+                            // JSON.parse()
+                            console.warn('TornadoWebSocket: Can not parse invalid JSON.');
+                        } else {
+                            console.warn('TornadoWebSocket: ' + e.message);
+                        }
                     }
                 };
             }
@@ -223,7 +227,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
     TornadoWebSocket.Module = function () {
         function _class() {
-            var name = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+            var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
             _classCallCheck(this, _class);
 
@@ -231,7 +235,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.');
             }
 
-            this.name = '' + name;
+            this.name = '' + prefix;
         }
 
         /**
@@ -243,7 +247,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'bind_websocket',
             value: function bind_websocket(websocket) {
                 if (!(websocket instanceof TornadoWebSocket)) {
-                    throw new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket, got ' + (typeof websocket === 'undefined' ? 'undefined' : _typeof(websocket)) + ' instead.');
+                    throw new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket.');
                 }
 
                 this.websocket = websocket;
