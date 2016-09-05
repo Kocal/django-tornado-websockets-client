@@ -1,4 +1,4 @@
-require(['tws/client-es6'], function (TornadoWebSocket) {
+require(['tws/tornadowebsocket-es6'], function (TornadoWebSocket) {
     'use strict'
 
     let $status = document.querySelector('#status')

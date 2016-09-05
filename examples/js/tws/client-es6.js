@@ -1,1 +1,0 @@
-../../../dist/client-es6.js
