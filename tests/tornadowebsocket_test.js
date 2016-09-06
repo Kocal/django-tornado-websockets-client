@@ -247,8 +247,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
     })
 
     describe('TornadoWebSocket.Module', function () {
-        var MyModule // sub class of TornadoWebSocket.Module
-
         // From Babel
         function _inherits(subClass, superClass) {
             if (typeof superClass !== 'function' && superClass !== null) {
@@ -265,25 +263,15 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
             if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
         }
 
-        // Class definition in ES6 version is different of the non-ES6 version. So is the class extending, so I should
-        // write two versions of a subclass of TornadoWebSocket.Module.
-        if (window.__env__['USE_ES6']) {
-            MyModule = class extends TornadoWebSocket.Module {
-                constructor(name = 'my_module_') {
-                    super(name)
-                }
+        var MyModule = (function (Module) {  // sub class of TornadoWebSocket.Module
+            _inherits(MyModule, Module)
+
+            function MyModule(prefix) {
+                Object.getPrototypeOf(MyModule).call(this, prefix)
             }
-        } else {
-            MyModule = (function (Module) {
-                _inherits(MyModule, Module)
 
-                function MyModule(prefix) {
-                    Object.getPrototypeOf(MyModule).call(this, prefix)
-                }
-
-                return MyModule
-            })(TornadoWebSocket.Module)
-        }
+            return MyModule
+        })(TornadoWebSocket.Module)
 
         describe('constructor()', function () {
             it('should not be instantiated directly', function () {
