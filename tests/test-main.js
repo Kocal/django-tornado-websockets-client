@@ -24,10 +24,15 @@ Object.keys(window.__karma__.files).sort().forEach(function (file) {
         var testModule = file.replace(/^\/base\/|\.js$/g, '')
         var es6TestModule = testModule + '-es6'
 
-        if (!USE_ES6 && !isES6Module(testModule)) { // We use non ES6 test files in non ES6 mode
-            testModules.push(testModule)
-        } else {
+        // Try to find to make the following code cleaner
+        if (!USE_ES6) {
+            if (!isES6Module(testModule)) {
+                // No ES6 mode, only load non ES6 test files
+                testModules.push(testModule)
+            }
+        } else { // ES6 mode
             if (isES6Module(testModule)) {
+                // We directly found a compatible module
                 testModules.push(testModule)
             } else {
                 if (testModules.indexOf(es6TestModule) === -1) {
@@ -35,8 +40,6 @@ Object.keys(window.__karma__.files).sort().forEach(function (file) {
                 }
             }
         }
-
-        console.log('===============================')
     }
 })
 
