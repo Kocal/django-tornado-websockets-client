@@ -149,7 +149,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
                     // We are testing tws.websocket.onmessage(), not tws.on()
                     tws.events.new_message = function (message) {
-                        console.log(`New message from ${message.user.nickname}: « ${message.content} ».`)
+                        console.log('New message from ' + message.user.nickname + ': « ' + message.content + ' ».')
                     }
 
                     tws.websocket.onmessage(new MessageEvent('message', {
