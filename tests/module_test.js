@@ -36,7 +36,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
             it('should be inherited by a sub class', function () {
                 var myModule = new MyModule('my_module')
 
-                expect(myModule.name).toBe('my_module')
+                expect(myModule.name).toBe('module_my_module')
             })
         })
 
@@ -71,7 +71,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
                 myModule.bind_websocket(tws)
                 myModule.on('my_event', function () {})
 
-                expect(tws.on).toHaveBeenCalledWith('my_module_my_event', jasmine.any(Function))
+                expect(tws.on).toHaveBeenCalledWith('module_my_module_my_event', jasmine.any(Function))
             })
         })
 
@@ -85,7 +85,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
                 myModule.bind_websocket(tws)
                 myModule.emit('my_event')
 
-                expect(tws.emit).toHaveBeenCalledWith('my_module_my_event', {})
+                expect(tws.emit).toHaveBeenCalledWith('module_my_module_my_event', {})
             })
         })
     })

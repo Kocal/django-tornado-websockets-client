@@ -53,19 +53,19 @@
      *     })
      * })
      */
-    class ProgressBar extends TornadoWebSocket.Module {
+    let ProgressBar = class extends TornadoWebSocket.Module {
 
         /**
          * Initialize a new ProgressBarModule object with given parameters.
          *
          * @param {String}  prefix  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
-        constructor(prefix = 'module_progressbar_') {
-            super(prefix)
+        constructor(prefix = '') {
+            super(`progressbar_${prefix}`)
         }
 
         set_engine(engine) {
-            if (!(engine instanceof TornadoWebSocket.modules.ProgressBar.Engine)) {
+            if (!(engine instanceof ProgressBar.EngineInterface)) {
                 throw new TypeError(
                     `Parameter « engine » should be an instance of ProgressBarModuleEngine, got ${typeof engine} instead.`
                 )

@@ -194,7 +194,7 @@
                 throw new TypeError('Abstract class « TornadoWebSocket.Module » can not be instantiated directly.')
             }
 
-            this.name = '' + prefix
+            this.name = 'module_' + prefix
         }
 
         /**

@@ -76,11 +76,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
          * @param {String}  prefix  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
         function ProgressBar() {
-            var prefix = arguments.length <= 0 || arguments[0] === undefined ? 'module_progressbar_' : arguments[0];
+            var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
             _classCallCheck(this, ProgressBar);
 
-            return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).call(this, prefix));
+            return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).call(this, 'progressbar_' + prefix));
         }
 
         _createClass(ProgressBar, [{
@@ -88,7 +88,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
             value: function set_engine(engine) {
                 var _this2 = this;
 
-                if (!(engine instanceof TornadoWebSocket.modules.ProgressBar.Engine)) {
+                if (!(engine instanceof ProgressBar.EngineInterface)) {
                     throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine, got ' + (typeof engine === 'undefined' ? 'undefined' : _typeof(engine)) + ' instead.');
                 }
 
