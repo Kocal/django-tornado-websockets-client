@@ -224,7 +224,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
                     expect(tws.websocket.send).toHaveBeenCalledWith('{"event":"my_event","data":{}}')
                     done()
                 })
-            }, 3000)
+            })
 
             it('should emit event with data which is a dictionary', function (done) {
                 var tws = new TornadoWebSocket('/echo', {'host': 'kocal.fr'})
@@ -234,7 +234,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
                     expect(tws.websocket.send).toHaveBeenCalledWith('{"event":"my_event","data":{"id":1}}')
                     done()
                 })
-            }, 3000)
+            })
 
             it('should emit event with data which is not a dictionary, by converts it to a dict', function (done) {
                 var tws = new TornadoWebSocket('/echo', {'host': 'kocal.fr'})
@@ -244,7 +244,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
                     expect(tws.websocket.send).toHaveBeenCalledWith('{"event":"my_event","data":{"message":"My message."}}')
                     done()
                 })
-            }, 3000)
+            })
         })
     })
 })
