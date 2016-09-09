@@ -58,17 +58,15 @@
         /**
          * Initialize a new ProgressBarModule object with given parameters.
          *
-         * @param {String}  prefix  String that will prefix events name for TornadoWebSocket's on/emit methods.
+         * @param {String}  suffix  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
-        constructor(prefix = '') {
-            super(`progressbar_${prefix}`)
+        constructor(suffix = '') {
+            super(`progressbar_${suffix}_`)
         }
 
         set_engine(engine) {
             if (!(engine instanceof ProgressBar.EngineInterface)) {
-                throw new TypeError(
-                    `Parameter « engine » should be an instance of ProgressBarModuleEngine, got ${typeof engine} instead.`
-                )
+                throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine.')
             }
 
             /**
@@ -91,20 +89,16 @@
 
     ProgressBar.EngineInterface = class {
 
-        constructor($container, options) {
+        constructor($container) {
             if ($container === void 0 || !($container instanceof HTMLElement)) {
-                throw new TypeError(
-                    `Parameter « $container » should be an instance of HTMLElement, got ${typeof $container} instead.`
-                )
-            }
-
-            if (options !== null || options instanceof Object) {
-                throw new TypeError(`Parameter « options » should be an Object, got ${typeof options} instead.`)
+                throw new TypeError('Parameter « $container » should be an instance of HTMLElement.')
             }
 
             this.$container = $container
 
-            Object.assign(this.options, this.defaults, options)
+            this.defaults = {}
+
+            this.options = {}
         }
 
         render() {
@@ -144,6 +138,14 @@
             return false
         }
 
+        compute_progression() {
+
+        }
+
+        format_progression(progression) {
+
+        }
+
         _register_values(values) {
             for (let key in values) {
                 this[key] = values[key]
@@ -167,8 +169,9 @@
     ProgressBar.EngineBootstrap = class extends ProgressBar.EngineInterface {
 
         constructor($container, options) {
-            // Default options, style waiting for member declaration outside the constructor
-            ProgressBar.EngineBootstrap.defaults = {
+            super($container)
+
+            this.defaults = {
                 label_visible: true,
                 label_classes: ['progressbar-label'],
                 label_position: 'top',
@@ -179,11 +182,11 @@
                 progression_format: '{{percent}} %',
             }
 
-            super($container, options)
+            Object.assign(this.options, this.defaults, options)
         }
 
         update_progression() {
-            this.$progression.textContent = this.format_progression(this.calcul_progression())
+            this.$progression.textContent = this.format_progression(this.compute_progression())
         }
 
         update_label(label) {
@@ -217,7 +220,7 @@
 
             // Progression text (in the progress bar)
             this.$progression = document.createElement('span')
-            if (this.options.progression.visible === false) {
+            if (this.options.progression_visible === false) {
                 this.$progression.classList.add('sr-only')
             }
 
@@ -227,7 +230,7 @@
                 this.$label.classList.add(klass)
             }
 
-            if (this.options.label.visible === false) {
+            if (this.options.label_visible === false) {
                 this.$label.style.display = 'none'
             }
         }
@@ -237,7 +240,7 @@
             this.$progress.appendChild(this.$progressbar)
             this.$container.appendChild(this.$progress)
 
-            if (this.options.label.position === 'top') {
+            if (this.options.label_position === 'top') {
                 this.$container.insertBefore(this.$label, this.$progress)
             } else { // bottom :^)
                 this.$container.appendChild(this.$label)
@@ -282,7 +285,7 @@
         }
 
         update_progression() {
-            this.$progression.textContent = this.format_progression(this.calcul_progression())
+            this.$progression.textContent = this.format_progression(this.compute_progression())
         }
 
         update_label(label) {

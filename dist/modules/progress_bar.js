@@ -73,14 +73,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         /**
          * Initialize a new ProgressBarModule object with given parameters.
          *
-         * @param {String}  prefix  String that will prefix events name for TornadoWebSocket's on/emit methods.
+         * @param {String}  suffix  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
         function ProgressBar() {
-            var prefix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+            var suffix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
             _classCallCheck(this, ProgressBar);
 
-            return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).call(this, 'progressbar_' + prefix));
+            return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).call(this, 'progressbar_' + suffix + '_'));
         }
 
         _createClass(ProgressBar, [{
@@ -89,7 +89,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var _this2 = this;
 
                 if (!(engine instanceof ProgressBar.EngineInterface)) {
-                    throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine, got ' + (typeof engine === 'undefined' ? 'undefined' : _typeof(engine)) + ' instead.');
+                    throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine.');
                 }
 
                 /**
@@ -114,20 +114,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     }(TornadoWebSocket.Module);
 
     ProgressBar.EngineInterface = function () {
-        function _class($container, options) {
+        function _class($container) {
             _classCallCheck(this, _class);
 
             if ($container === void 0 || !($container instanceof HTMLElement)) {
-                throw new TypeError('Parameter « $container » should be an instance of HTMLElement, got ' + (typeof $container === 'undefined' ? 'undefined' : _typeof($container)) + ' instead.');
-            }
-
-            if (options !== null || options instanceof Object) {
-                throw new TypeError('Parameter « options » should be an Object, got ' + (typeof options === 'undefined' ? 'undefined' : _typeof(options)) + ' instead.');
+                throw new TypeError('Parameter « $container » should be an instance of HTMLElement.');
             }
 
             this.$container = $container;
 
-            _extends(this.options, this.defaults, options);
+            this.defaults = {};
+
+            this.options = {};
         }
 
         _createClass(_class, [{
@@ -176,6 +174,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 return false;
             }
         }, {
+            key: 'compute_progression',
+            value: function compute_progression() {}
+        }, {
+            key: 'format_progression',
+            value: function format_progression(progression) {}
+        }, {
             key: '_register_values',
             value: function _register_values(values) {
                 for (var key in values) {
@@ -209,8 +213,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         function _class2($container, options) {
             _classCallCheck(this, _class2);
 
-            // Default options, style waiting for member declaration outside the constructor
-            ProgressBar.EngineBootstrap.defaults = {
+            var _this3 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container));
+
+            _this3.defaults = {
                 label_visible: true,
                 label_classes: ['progressbar-label'],
                 label_position: 'top',
@@ -221,13 +226,14 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 progression_format: '{{percent}} %'
             };
 
-            return _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container, options));
+            _extends(_this3.options, _this3.defaults, options);
+            return _this3;
         }
 
         _createClass(_class2, [{
             key: 'update_progression',
             value: function update_progression() {
-                this.$progression.textContent = this.format_progression(this.calcul_progression());
+                this.$progression.textContent = this.format_progression(this.compute_progression());
             }
         }, {
             key: 'update_label',
@@ -263,7 +269,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 // Progression text (in the progress bar)
                 this.$progression = document.createElement('span');
-                if (this.options.progression.visible === false) {
+                if (this.options.progression_visible === false) {
                     this.$progression.classList.add('sr-only');
                 }
 
@@ -273,7 +279,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     this.$label.classList.add(klass);
                 }
 
-                if (this.options.label.visible === false) {
+                if (this.options.label_visible === false) {
                     this.$label.style.display = 'none';
                 }
             }
@@ -284,7 +290,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 this.$progress.appendChild(this.$progressbar);
                 this.$container.appendChild(this.$progress);
 
-                if (this.options.label.position === 'top') {
+                if (this.options.label_position === 'top') {
                     this.$container.insertBefore(this.$label, this.$progress);
                 } else {
                     // bottom :^)
@@ -339,7 +345,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         _createClass(_class3, [{
             key: 'update_progression',
             value: function update_progression() {
-                this.$progression.textContent = this.format_progression(this.calcul_progression());
+                this.$progression.textContent = this.format_progression(this.compute_progression());
             }
         }, {
             key: 'update_label',
