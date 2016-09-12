@@ -190,7 +190,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: 'on_update',
             value: function on_update(datas) {
-                this.update_progressbar_values({ current: datas.current }); // @TODO value to current . . .
+                this.update_progressbar_values({ 'current': datas.current }); // @TODO value to current . . .
                 this._update_progression();
                 this._update_label(datas.label);
             }
@@ -245,20 +245,22 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     ProgressBar.EngineBootstrap = function (_ProgressBar$EngineIn) {
         _inherits(_class2, _ProgressBar$EngineIn);
 
-        function _class2($container, options) {
+        function _class2($container) {
+            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
             _classCallCheck(this, _class2);
 
             var _this3 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container));
 
             _this3.defaults = {
-                label_visible: true,
-                label_classes: ['progressbar-label'],
-                label_position: 'top',
-                progressbar_context: 'info',
-                progressbar_striped: false,
-                progressbar_animated: false,
-                progression_visible: true,
-                progression_format: '{{progress}} %'
+                'label_visible': true,
+                'label_classes': ['progressbar-label'],
+                'label_position': 'top',
+                'progressbar_context': 'info',
+                'progressbar_striped': false,
+                'progressbar_animated': false,
+                'progression_visible': true,
+                'progression_format': '{{progress}} %'
             };
 
             _extends(_this3.options, _this3.defaults, options);
@@ -335,8 +337,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_assign',
-            value: function _assign(key, value) {
+            key: '_handle_progressbar_value',
+            value: function _handle_progressbar_value(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':
@@ -364,18 +366,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     ProgressBar.EngineHtml5 = function (_ProgressBar$EngineIn2) {
         _inherits(_class3, _ProgressBar$EngineIn2);
 
-        function _class3($element, options) {
+        function _class3($element) {
+            var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
             _classCallCheck(this, _class3);
 
             var _this4 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element));
 
             _this4.defaults = {
-                label_visible: true,
-                label_classes: ['progressbar-label'],
-                label_position: 'top',
-                progression_visible: true,
-                progression_format: '{{progress}}%',
-                progression_position: 'right'
+                'label_visible': true,
+                'label_classes': ['progressbar-label'],
+                'label_position': 'top',
+                'progression_visible': true,
+                'progression_format': '{{progress}}%',
+                'progression_position': 'right'
             };
 
             _extends(_this4.options, _this4.defaults, options);
@@ -438,8 +442,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_assign',
-            value: function _assign(key, value) {
+            key: '_handle_progressbar_value',
+            value: function _handle_progressbar_value(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':

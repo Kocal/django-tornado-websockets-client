@@ -155,7 +155,7 @@
         }
 
         on_update(datas) {
-            this.update_progressbar_values({current: datas.current}) // @TODO value to current . . .
+            this.update_progressbar_values({'current': datas.current}) // @TODO value to current . . .
             this._update_progression()
             this._update_label(datas.label)
         }
@@ -198,18 +198,18 @@
 
     ProgressBar.EngineBootstrap = class extends ProgressBar.EngineInterface {
 
-        constructor($container, options) {
+        constructor($container, options = {}) {
             super($container)
 
             this.defaults = {
-                label_visible: true,
-                label_classes: ['progressbar-label'],
-                label_position: 'top',
-                progressbar_context: 'info',
-                progressbar_striped: false,
-                progressbar_animated: false,
-                progression_visible: true,
-                progression_format: '{{progress}} %',
+                'label_visible': true,
+                'label_classes': ['progressbar-label'],
+                'label_position': 'top',
+                'progressbar_context': 'info',
+                'progressbar_striped': false,
+                'progressbar_animated': false,
+                'progression_visible': true,
+                'progression_format': '{{progress}} %',
             }
 
             Object.assign(this.options, this.defaults, options)
@@ -279,7 +279,7 @@
             }
         }
 
-        _assign(key, value) {
+        _handle_progressbar_value(key, value) {
             switch (key) {
             case 'min':
             case 'max':
@@ -303,16 +303,16 @@
 
     ProgressBar.EngineHtml5 = class extends ProgressBar.EngineInterface {
 
-        constructor($element, options) {
+        constructor($element, options = {}) {
             super($element)
 
             this.defaults = {
-                label_visible: true,
-                label_classes: ['progressbar-label'],
-                label_position: 'top',
-                progression_visible: true,
-                progression_format: '{{progress}}%',
-                progression_position: 'right'
+                'label_visible': true,
+                'label_classes': ['progressbar-label'],
+                'label_position': 'top',
+                'progression_visible': true,
+                'progression_format': '{{progress}}%',
+                'progression_position': 'right'
             }
 
             Object.assign(this.options, this.defaults, options)
@@ -370,7 +370,7 @@
             }
         }
 
-        _assign(key, value) {
+        _handle_progressbar_value(key, value) {
             switch (key) {
             case 'min':
             case 'max':

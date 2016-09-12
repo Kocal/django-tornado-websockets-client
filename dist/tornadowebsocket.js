@@ -77,9 +77,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
              * @private
              */
             this.options = _extends({}, {
-                host: location.hostname || 'localhost',
-                port: 8000,
-                secure: false
+                'host': location.hostname || 'localhost',
+                'port': 8000,
+                'secure': false
             }, options);
 
             /**
@@ -210,12 +210,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var data = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
                 if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) !== 'object') {
-                    data = { message: data };
+                    data = { 'message': data };
                 }
 
                 var frame = JSON.stringify({
-                    event: event,
-                    data: data
+                    'event': event,
+                    'data': data
                 });
 
                 this.websocket.send(frame);

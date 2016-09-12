@@ -62,9 +62,9 @@
              * @private
              */
             this.options = Object.assign({}, {
-                host: location.hostname || 'localhost',
-                port: 8000,
-                secure: false,
+                'host': location.hostname || 'localhost',
+                'port': 8000,
+                'secure': false,
             }, options)
 
             /**
@@ -175,12 +175,12 @@
          */
         emit(event, data = {}) {
             if (typeof data !== 'object') {
-                data = {message: data}
+                data = {'message': data}
             }
 
             let frame = JSON.stringify({
-                event: event,
-                data: data
+                'event': event,
+                'data': data
             })
 
             this.websocket.send(frame)
