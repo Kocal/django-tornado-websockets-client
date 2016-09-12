@@ -108,6 +108,35 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 this.engine.render();
             }
+        }, {
+            key: 'min',
+            get: function get() {
+                return this.engine ? this.engine.values.min : void 0;
+            },
+            set: function set(min) {
+                if (this.engine) this.engine.update_progressbar_values({ min: min });
+            }
+        }, {
+            key: 'max',
+            get: function get() {
+                return this.engine ? this.engine.values.max : void 0;
+            },
+            set: function set(max) {
+                if (this.engine) this.engine.update_progressbar_values({ max: max });
+            }
+        }, {
+            key: 'current',
+            get: function get() {
+                return this.engine ? this.engine.values.current : void 0;
+            },
+            set: function set(current) {
+                if (this.engine) this.engine.update_progressbar_values({ current: current });
+            }
+        }, {
+            key: 'progression',
+            get: function get() {
+                return this.engine ? this.engine.compute_progression() : void 0;
+            }
         }]);
 
         return ProgressBar;
@@ -126,6 +155,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
             this.defaults = {};
 
             this.options = {};
+
+            this.values = {};
         }
 
         _createClass(_class, [{
@@ -153,54 +184,58 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     current = datas.value; // @TODO Change .value to .current (server side)
                 }
 
-                this._register_values({ min: min, max: max, current: current, indeterminate: indeterminate });
-                this.on_update({ value: current }); // @TODO value to current . . .
+                this.update_progressbar_values({ min: min, max: max, current: current, indeterminate: indeterminate });
+                this.on_update({ current: current }); // @TODO value to current . . .
             }
         }, {
             key: 'on_update',
             value: function on_update(datas) {
-                this._register_values({ current: datas.value }); // @TODO value to current . . .
-                this.update_progression();
-                this.update_label(datas.label);
-            }
-        }, {
-            key: 'update_label',
-            value: function update_label(label) {
-                return false;
-            }
-        }, {
-            key: 'update_progression',
-            value: function update_progression() {
-                return false;
+                this.update_progressbar_values({ current: datas.current }); // @TODO value to current . . .
+                this._update_progression();
+                this._update_label(datas.label);
             }
         }, {
             key: 'compute_progression',
-            value: function compute_progression() {}
+            value: function compute_progression() {
+                return (this.values.current - this.values.min) * 100 / (this.values.max - this.values.min);
+            }
         }, {
             key: 'format_progression',
-            value: function format_progression(progression) {}
+            value: function format_progression(progression) {
+                return this.options.progression_format.replace(/\{\{ *progress *}}/g, progression);
+            }
         }, {
-            key: '_register_values',
-            value: function _register_values(values) {
+            key: 'update_progressbar_values',
+            value: function update_progressbar_values(values) {
                 for (var key in values) {
-                    this[key] = values[key];
-                    this._register(key, this[key]);
+                    this.values[key] = values[key];
+                    this._handle_progressbar_value(key, values[key]);
                 }
             }
         }, {
-            key: '_register',
-            value: function _register(key, value) {
-                return false;
+            key: '_handle_progressbar_value',
+            value: function _handle_progressbar_value(key, value) {
+                throw new Error('Method « _handle_progressbar_value » should be implemented by the engine.');
             }
         }, {
             key: '_create_elements',
             value: function _create_elements() {
-                return false;
+                throw new Error('Method « _create_elements » should be implemented by the engine.');
             }
         }, {
             key: '_render_elements',
             value: function _render_elements() {
-                return false;
+                throw new Error('Method « _render_elements » should be implemented by the engine.');
+            }
+        }, {
+            key: '_update_label',
+            value: function _update_label(label) {
+                throw new Error('Method « _update_label » should be implemented by the engine.');
+            }
+        }, {
+            key: '_update_progression',
+            value: function _update_progression() {
+                throw new Error('Method « _update_progression » should be implemented by the engine.');
             }
         }]);
 
@@ -223,7 +258,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 progressbar_striped: false,
                 progressbar_animated: false,
                 progression_visible: true,
-                progression_format: '{{percent}} %'
+                progression_format: '{{progress}} %'
             };
 
             _extends(_this3.options, _this3.defaults, options);
@@ -233,7 +268,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         _createClass(_class2, [{
             key: 'update_progression',
             value: function update_progression() {
-                this.$progression.textContent = this.format_progression(this.compute_progression());
+                var progression = this.compute_progression();
+                this.$progression.textContent = this.format_progression(progression);
+                this.$progressbar.style.width = progression + '%';
             }
         }, {
             key: 'update_label',
@@ -298,8 +335,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_register',
-            value: function _register(key, value) {
+            key: '_assign',
+            value: function _assign(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':
@@ -330,16 +367,19 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         function _class3($element, options) {
             _classCallCheck(this, _class3);
 
-            ProgressBar.EngineHtml5.defaults = {
+            var _this4 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element));
+
+            _this4.defaults = {
                 label_visible: true,
                 label_classes: ['progressbar-label'],
                 label_position: 'top',
                 progression_visible: true,
-                progression_format: '{{percent}}%',
+                progression_format: '{{progress}}%',
                 progression_position: 'right'
             };
 
-            return _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element, options));
+            _extends(_this4.options, _this4.defaults, options);
+            return _this4;
         }
 
         _createClass(_class3, [{
@@ -398,8 +438,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_register',
-            value: function _register(key, value) {
+            key: '_assign',
+            value: function _assign(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':

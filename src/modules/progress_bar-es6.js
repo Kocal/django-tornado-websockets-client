@@ -85,6 +85,34 @@
 
             this.engine.render()
         }
+
+        get min() {
+            return (this.engine ? this.engine.values.min : void 0)
+        }
+
+        set min(min) {
+            if (this.engine) this.engine.update_progressbar_values({min})
+        }
+
+        get max() {
+            return (this.engine ? this.engine.values.max : void 0)
+        }
+
+        set max(max) {
+            if (this.engine) this.engine.update_progressbar_values({max})
+        }
+
+        get current() {
+            return (this.engine ? this.engine.values.current : void 0)
+        }
+
+        set current(current) {
+            if (this.engine) this.engine.update_progressbar_values({current})
+        }
+
+        get progression() {
+            return (this.engine ? this.engine.compute_progression() : void 0)
+        }
     }
 
     ProgressBar.EngineInterface = class {
@@ -99,6 +127,8 @@
             this.defaults = {}
 
             this.options = {}
+
+            this.values = {}
         }
 
         render() {
@@ -120,49 +150,49 @@
                 current = datas.value // @TODO Change .value to .current (server side)
             }
 
-            this._register_values({min, max, current, indeterminate})
-            this.on_update({value: current}) // @TODO value to current . . .
+            this.update_progressbar_values({min, max, current, indeterminate})
+            this.on_update({current}) // @TODO value to current . . .
         }
 
         on_update(datas) {
-            this._register_values({current: datas.value}) // @TODO value to current . . .
-            this.update_progression()
-            this.update_label(datas.label)
-        }
-
-        update_label(label) {
-            return false
-        }
-
-        update_progression() {
-            return false
+            this.update_progressbar_values({current: datas.current}) // @TODO value to current . . .
+            this._update_progression()
+            this._update_label(datas.label)
         }
 
         compute_progression() {
-
+            return (this.values.current - this.values.min) * 100 / (this.values.max - this.values.min)
         }
 
         format_progression(progression) {
-
+            return this.options.progression_format.replace(/\{\{ *progress *}}/g, progression)
         }
 
-        _register_values(values) {
+        update_progressbar_values(values) {
             for (let key in values) {
-                this[key] = values[key]
-                this._register(key, this[key])
+                this.values[key] = values[key]
+                this._handle_progressbar_value(key, values[key])
             }
         }
 
-        _register(key, value) {
-            return false
+        _handle_progressbar_value(key, value) {
+            throw new Error('Method « _handle_progressbar_value » should be implemented by the engine.')
         }
 
         _create_elements() {
-            return false
+            throw new Error('Method « _create_elements » should be implemented by the engine.')
         }
 
         _render_elements() {
-            return false
+            throw new Error('Method « _render_elements » should be implemented by the engine.')
+        }
+
+        _update_label(label) {
+            throw new Error('Method « _update_label » should be implemented by the engine.')
+        }
+
+        _update_progression() {
+            throw new Error('Method « _update_progression » should be implemented by the engine.')
         }
     }
 
@@ -179,14 +209,16 @@
                 progressbar_striped: false,
                 progressbar_animated: false,
                 progression_visible: true,
-                progression_format: '{{percent}} %',
+                progression_format: '{{progress}} %',
             }
 
             Object.assign(this.options, this.defaults, options)
         }
 
         update_progression() {
-            this.$progression.textContent = this.format_progression(this.compute_progression())
+            let progression = this.compute_progression()
+            this.$progression.textContent = this.format_progression(progression)
+            this.$progressbar.style.width = progression + '%'
         }
 
         update_label(label) {
@@ -247,7 +279,7 @@
             }
         }
 
-        _register(key, value) {
+        _assign(key, value) {
             switch (key) {
             case 'min':
             case 'max':
@@ -272,16 +304,18 @@
     ProgressBar.EngineHtml5 = class extends ProgressBar.EngineInterface {
 
         constructor($element, options) {
-            ProgressBar.EngineHtml5.defaults = {
+            super($element)
+
+            this.defaults = {
                 label_visible: true,
                 label_classes: ['progressbar-label'],
                 label_position: 'top',
                 progression_visible: true,
-                progression_format: '{{percent}}%',
+                progression_format: '{{progress}}%',
                 progression_position: 'right'
             }
 
-            super($element, options)
+            Object.assign(this.options, this.defaults, options)
         }
 
         update_progression() {
@@ -336,7 +370,7 @@
             }
         }
 
-        _register(key, value) {
+        _assign(key, value) {
             switch (key) {
             case 'min':
             case 'max':
