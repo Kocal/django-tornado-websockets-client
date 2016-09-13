@@ -402,9 +402,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: '_update_label',
             value: function _update_label(label) {
-                if (label !== void 0) {
-                    this.$label.textContent = label;
-                }
+                this.$label.textContent = label;
             }
         }, {
             key: '_create_elements',
@@ -457,7 +455,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 switch (key) {
                     case 'min':
                     case 'max':
+                    case 'current':
                     case 'value':
+                        if (key === 'current') key = 'value';
+
                         this.$progressbar.setAttribute(key, value);
                         break;
                     case 'indeterminate':
@@ -465,6 +466,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                             this.$progressbar.removeAttribute('min');
                             this.$progressbar.removeAttribute('max');
                             this.$progressbar.removeAttribute('value');
+                        } else {
+                            this.update_progressbar_values({
+                                'min': this.values.min,
+                                'max': this.values.max,
+                                'current': this.values.current
+                            });
                         }
                 }
             }
