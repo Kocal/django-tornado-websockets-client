@@ -92,7 +92,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
         describe('EngineInterface', function () {
             describe('constructor()', function () {
-                it('should fail because $container is undefined or not an HTMLElement', function () {
+                it('should fail because $container is undefined nor an HTMLElement', function () {
                     expect(function () {
                         new ProgressBarModule.EngineInterface()
                     }).toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
@@ -114,7 +114,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
             })
 
             describe('render()', function () {
-                it('should correctly call _create_elements() and _render_elemets', function () {
+                it('should correctly call _create_elements() and _render_element()', function () {
                     var engine = new ProgressBarModule.EngineInterface(document.body)
 
                     spyOn(engine, '_create_elements')
@@ -125,7 +125,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     expect(engine._create_elements).toHaveBeenCalled()
                     expect(engine._render_elements).toHaveBeenCalled()
                 })
-
             })
 
             describe('on_init()', function () {
@@ -293,6 +292,269 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     expect(function () {
                         engine._update_progression()
                     }).toThrow(new Error('Method « _update_progression » should be implemented by the engine.'))
+                })
+            })
+
+            describe('EngineBootstrap', function () {
+                describe('constructor()', function () {
+                    it('should call EngineInterface::constructor() and fail because $container is undefined nor an HTMLElement', function () {
+                        expect(function () {
+                            new ProgressBarModule.EngineBootstrap()
+                        }).toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
+
+                        expect(function () {
+                            new ProgressBarModule.EngineBootstrap('foo')
+                        }).toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
+                    })
+
+                    it('should assign « real » options with defaults options of the engine', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        expect(engineBootstrap.options).toEqual(engineBootstrap.defaults)
+                        expect(engineBootstrap.options).toEqual({
+                            'label_visible': true,
+                            'label_classes': ['progressbar-label'],
+                            'label_position': 'top',
+                            'progressbar_context': 'info',
+                            'progressbar_striped': false,
+                            'progressbar_animated': false,
+                            'progression_visible': true,
+                            'progression_format': '{{progress}} %',
+                        })
+                    })
+
+                    it('should merge « real » options, defaults options of the engine, with the user ones', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'label_visible': false,
+                            'progression_format': 'Progression: {{progress}}%'
+                        })
+
+                        expect(engineBootstrap.options).not.toEqual(engineBootstrap.defaults)
+                        expect(engineBootstrap.options).toEqual({
+                            'label_visible': false,
+                            'label_classes': ['progressbar-label'],
+                            'label_position': 'top',
+                            'progressbar_context': 'info',
+                            'progressbar_striped': false,
+                            'progressbar_animated': false,
+                            'progression_visible': true,
+                            'progression_format': 'Progression: {{progress}}%',
+                        })
+                    })
+                })
+
+                describe('render()', function () {
+                    it('should correctly call _create_elements() and _render_element()', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        spyOn(engineBootstrap, '_create_elements')
+                        spyOn(engineBootstrap, '_render_elements')
+
+                        engineBootstrap.render()
+
+                        expect(engineBootstrap._create_elements).toHaveBeenCalled()
+                        expect(engineBootstrap._render_elements).toHaveBeenCalled()
+                    })
+                })
+
+                describe('_update_progression()', function () {
+                    it('should correctly works', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progression_format': 'Progression: {{progress}}%'
+                        })
+
+                        engineBootstrap.render()
+                        engineBootstrap.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
+                        engineBootstrap._update_progression()
+
+                        expect(engineBootstrap.$progression.textContent).toEqual('Progression: 50%')
+                        expect(engineBootstrap.$progressbar.style.width).toEqual('50%')
+                    })
+                })
+
+                describe('_update_progression()', function () {
+                    it('should correctly works', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progresssion_format': 'Progression: {{progress}}%'
+                        })
+
+                        engineBootstrap.render()
+                        expect(engineBootstrap.$label.textContent).toEqual('')
+
+                        engineBootstrap._update_label('foo')
+                        expect(engineBootstrap.$label.textContent).toEqual('foo')
+
+                        engineBootstrap._update_label()
+                        expect(engineBootstrap.$label.textContent).toEqual('')
+                    })
+                })
+
+                describe('_create_elements()', function () {
+                    it('should create elements by following the default behavior', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        expect(engineBootstrap.$progress).toBeUndefined()
+                        expect(engineBootstrap.$progression).toBeUndefined()
+                        expect(engineBootstrap.$progressbar).toBeUndefined()
+                        expect(engineBootstrap.$label).toBeUndefined()
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progress).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineBootstrap.$progress.classList).toContain('progress')
+
+                        expect(engineBootstrap.$progressbar).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar')
+                        expect(engineBootstrap.$progressbar.getAttribute('role')).toEqual('progressbar')
+                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-info')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-success')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-warning')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-danger')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+
+                        expect(engineBootstrap.$progression).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineBootstrap.$progression).not.toContain('sr-only')
+
+                        expect(engineBootstrap.$label).toEqual(jasmine.any(HTMLSpanElement))
+                        // Can't compare a DOMTokenList ($label.classList) to an array with .toEqual method
+                        expect(engineBootstrap.$label.className.split(' ')).toEqual(['progressbar-label'])
+                        expect(engineBootstrap.$label.style.display).not.toEqual('none')
+                    })
+
+                    it('should not allow an invalid `progressbar_context`', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progressbar_context': 'foo'
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-info')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-success')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-warning')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-danger')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-foo')
+                    })
+
+                    it('should « strip » the progressbar', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progressbar_striped': true
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                    })
+
+                    it('should not animate the progressbar because it\'s not striped', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progressbar_animated': true
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                    })
+
+                    it('should correctly animate the progressbar when it\'s not striped', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progressbar_animated': true,
+                            'progressbar_striped': true
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).toContain('active')
+                    })
+
+                    it('the $progression should be screen-reader visible only', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'progression_visible': false
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$progression.classList).toContain('sr-only')
+                    })
+
+                    it('the $label should not be visible ', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'label_visible': false
+                        })
+
+                        engineBootstrap._create_elements()
+
+                        expect(engineBootstrap.$label.style.display).toEqual('none')
+                    })
+                })
+
+                describe('_render_elements()', function () {
+                    it('should render elements by following the default behavior', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        engineBootstrap._create_elements()
+                        engineBootstrap._render_elements()
+
+                        expect(engineBootstrap.$progression.parentNode).toEqual(engineBootstrap.$progressbar)
+                        expect(engineBootstrap.$progressbar.parentNode).toEqual(engineBootstrap.$progress)
+                        expect(engineBootstrap.$progress.parentNode).toEqual(engineBootstrap.$container)
+                        expect(engineBootstrap.$label.nextSibling).toEqual(engineBootstrap.$progress)
+                    })
+
+                    it('should render elements with $label at the bottom', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body, {
+                            'label_position': 'bottom'
+                        })
+
+                        engineBootstrap.render()
+
+                        expect(engineBootstrap.$progress.nextSibling).toEqual(engineBootstrap.$label)
+                    })
+                })
+
+                describe('_handle_progressbar_value()', function () {
+                    it('should correctly change aria values', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        engineBootstrap.render()
+
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemin')).toBeNull()
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemax')).toBeNull()
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuenow')).toBeNull()
+
+                        engineBootstrap._handle_progressbar_value('min', 0)
+                        engineBootstrap._handle_progressbar_value('max', 100)
+                        engineBootstrap._handle_progressbar_value('current', 50)
+
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemin')).toEqual('0')
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemax')).toEqual('100')
+                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuenow')).toEqual('50')
+                    })
+
+                    it('should correctly set the progressbar in an indeterminated mode', function () {
+                        var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
+
+                        engineBootstrap.render()
+
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap.$progressbar.style.width).not.toEqual('100%')
+
+                        engineBootstrap._handle_progressbar_value('indeterminate', true)
+
+                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).toContain('active')
+                        expect(engineBootstrap.$progressbar.style.width).toEqual('100%')
+
+                        engineBootstrap._handle_progressbar_value('indeterminate', false)
+
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap.$progressbar.style.width).not.toEqual('100%')
+                    })
                 })
             })
         })
