@@ -534,7 +534,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         expect(engineBootstrap.$progressbar.getAttribute('aria-valuenow')).toEqual('50')
                     })
 
-                    it('should correctly set the progressbar in an indeterminated mode', function () {
+                    it('should correctly set the progressbar in an indeterminate mode', function () {
                         var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
 
                         engineBootstrap.render()
@@ -554,6 +554,222 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
                         expect(engineBootstrap.$progressbar.classList).not.toContain('active')
                         expect(engineBootstrap.$progressbar.style.width).not.toEqual('100%')
+                    })
+                })
+            })
+
+            describe('EngineHtml5', function () {
+                describe('constructor()', function () {
+                    it('should call EngineInterface::constructor() and fail because $container is undefined nor an HTMLElement', function () {
+                        expect(function () {
+                            new ProgressBarModule.EngineHtml5()
+                        }).toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
+
+                        expect(function () {
+                            new ProgressBarModule.EngineHtml5('foo')
+                        }).toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
+                    })
+
+                    it('should assign « real » options with defaults options of the engine', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        expect(engineHtml5.options).toEqual(engineHtml5.defaults)
+                        expect(engineHtml5.options).toEqual({
+                            'label_visible': true,
+                            'label_classes': ['progressbar-label'],
+                            'label_position': 'top',
+                            'progression_visible': true,
+                            'progression_format': '{{progress}}%',
+                            'progression_position': 'right'
+                        })
+                    })
+
+                    it('should merge « real » options, defaults options of the engine, with the user ones', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'label_visible': false,
+                            'progression_format': 'Progression: {{progress}}%'
+                        })
+
+                        expect(engineHtml5.options).not.toEqual(engineHtml5.defaults)
+                        expect(engineHtml5.options).toEqual({
+                            'label_visible': false,
+                            'label_classes': ['progressbar-label'],
+                            'label_position': 'top',
+                            'progression_visible': true,
+                            'progression_format': 'Progression: {{progress}}%',
+                            'progression_position': 'right'
+                        })
+                    })
+                })
+
+                describe('render()', function () {
+                    it('should correctly call _create_elements() and _render_element()', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        spyOn(engineHtml5, '_create_elements')
+                        spyOn(engineHtml5, '_render_elements')
+
+                        engineHtml5.render()
+
+                        expect(engineHtml5._create_elements).toHaveBeenCalled()
+                        expect(engineHtml5._render_elements).toHaveBeenCalled()
+                    })
+                })
+
+                describe('_update_progression()', function () {
+                    it('should correctly works', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'progression_format': 'Progression: {{progress}}%'
+                        })
+
+                        engineHtml5.render()
+                        engineHtml5.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
+                        engineHtml5._update_progression()
+
+                        expect(engineHtml5.$progression.textContent).toEqual('Progression: 50%')
+                    })
+                })
+
+                describe('_update_progression()', function () {
+                    it('should correctly works', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'progresssion_format': 'Progression: {{progress}}%'
+                        })
+
+                        engineHtml5.render()
+                        expect(engineHtml5.$label.textContent).toEqual('')
+
+                        engineHtml5._update_label('foo')
+                        expect(engineHtml5.$label.textContent).toEqual('foo')
+
+                        engineHtml5._update_label()
+                        expect(engineHtml5.$label.textContent).toEqual('')
+                    })
+                })
+
+                describe('_create_elements()', function () {
+                    it('should create elements by following the default behavior', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        engineHtml5._create_elements()
+
+                        expect(engineHtml5.$progress).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineHtml5.$progress.classList).toContain('progress')
+
+                        expect(engineHtml5.$progressbar).toEqual(jasmine.any(HTMLProgressElement))
+                        expect(engineHtml5.$progressbar.classList).toContain('progress-bar')
+
+                        expect(engineHtml5.$progression).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineHtml5.$progression.style.display).not.toBe('none')
+
+                        expect(engineHtml5.$label).toEqual(jasmine.any(HTMLSpanElement))
+                        // Can't compare a DOMTokenList ($label.classList) to an array with .toEqual method
+                        expect(engineHtml5.$label.className.split(' ')).toEqual(['progressbar-label'])
+                        expect(engineHtml5.$label.style.display).not.toEqual('none')
+                    })
+
+                    it('the $progression should be screen-reader visible only', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'progression_visible': false
+                        })
+
+                        engineHtml5._create_elements()
+
+                        expect(engineHtml5.$progression.style.display).toEqual('none')
+                    })
+
+                    it('the $label should not be visible ', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'label_visible': false
+                        })
+
+                        engineHtml5._create_elements()
+
+                        expect(engineHtml5.$label.style.display).toEqual('none')
+                    })
+                })
+
+                describe('_render_elements()', function () {
+                    it('should render elements by following the default behavior', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        engineHtml5._create_elements()
+                        engineHtml5._render_elements()
+
+                        expect(engineHtml5.$progressbar.parentNode).toEqual(engineHtml5.$progress)
+                        expect(engineHtml5.$progress.parentNode).toEqual(engineHtml5.$container)
+                        expect(engineHtml5.$label.nextSibling).toEqual(engineHtml5.$progress)
+                        expect(engineHtml5.$progressbar.nextSibling).toEqual(engineHtml5.$progression)
+                    })
+
+                    it('should render elements with $label at the bottom of the progress bar', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'label_position': 'bottom'
+                        })
+
+                        engineHtml5._create_elements()
+                        engineHtml5._render_elements()
+
+                        expect(engineHtml5.$progress.nextSibling).toEqual(engineHtml5.$label)
+                    })
+
+                    it('should render elements with $progression at the left of the progress bar', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body, {
+                            'progression_position': 'left'
+                        })
+
+                        engineHtml5._create_elements()
+                        engineHtml5._render_elements()
+
+                        expect(engineHtml5.$progression.nextSibling).toEqual(engineHtml5.$progressbar)
+                    })
+                })
+
+                describe('_handle_progressbar_value()', function () {
+                    it('should correctly change aria values', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        engineHtml5.render()
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+
+                        engineHtml5._handle_progressbar_value('min', 0)
+                        engineHtml5._handle_progressbar_value('max', 100)
+                        engineHtml5._handle_progressbar_value('current', 50)
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
+                    })
+
+                    it('should correctly set the progressbar in an indeterminate mode', function () {
+                        var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
+
+                        engineHtml5.render()
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+
+                        engineHtml5.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
+
+                        engineHtml5._handle_progressbar_value('indeterminate', true)
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+
+                        engineHtml5._handle_progressbar_value('indeterminate', false)
+
+                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
                     })
                 })
             })
