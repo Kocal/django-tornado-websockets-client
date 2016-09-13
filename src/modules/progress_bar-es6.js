@@ -169,10 +169,10 @@
         }
 
         update_progressbar_values(values) {
-            for (let key in values) {
+            Object.keys(values).forEach(key => {
                 this.values[key] = values[key]
                 this._handle_progressbar_value(key, values[key])
-            }
+            })
         }
 
         _handle_progressbar_value(key, value) {
@@ -258,9 +258,7 @@
 
             // Label at the top or bottom of the progress bar
             this.$label = document.createElement('span')
-            for (let klass in this.options.label_classes) {
-                this.$label.classList.add(klass)
-            }
+            this.options.label_classes.forEach(klass => this.$label.classList.add(klass))
 
             if (this.options.label_visible === false) {
                 this.$label.style.display = 'none'
@@ -283,10 +281,8 @@
             switch (key) {
             case 'min':
             case 'max':
-            case 'value':
-                if (key === 'value') {
-                    key = 'now'
-                }
+            case 'current':
+                if (key === 'current') key = 'now'
 
                 this.$progressbar.setAttribute('aria-value' + key, value)
                 break
@@ -296,6 +292,10 @@
                     this.$progressbar.classList.add('progress-bar-striped')
                     this.$progressbar.classList.add('active')
                     this.$progressbar.style.width = '100%'
+                } else {
+                    this.$progressbar.classList.remove('progress-bar-striped')
+                    this.$progressbar.classList.remove('active')
+                    this.$progressbar.style.width = ''
                 }
             }
         }
@@ -345,9 +345,7 @@
 
             // Label at the top or the bottom of the progress bar
             this.$label = document.createElement('span')
-            for (let klass in this.options.label_classes) {
-                this.$label.classList.add(klass)
-            }
+            this.options.label_classes.forEach(klass => this.$label.classList.add(klass))
 
             if (this.options.label_visible === false) {
                 this.$label.style.display = 'none'

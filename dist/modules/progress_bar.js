@@ -207,10 +207,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: 'update_progressbar_values',
             value: function update_progressbar_values(values) {
-                for (var key in values) {
-                    this.values[key] = values[key];
-                    this._handle_progressbar_value(key, values[key]);
-                }
+                var _this3 = this;
+
+                Object.keys(values).forEach(function (key) {
+                    _this3.values[key] = values[key];
+                    _this3._handle_progressbar_value(key, values[key]);
+                });
             }
         }, {
             key: '_handle_progressbar_value',
@@ -250,9 +252,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
             _classCallCheck(this, _class2);
 
-            var _this3 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container));
+            var _this4 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container));
 
-            _this3.defaults = {
+            _this4.defaults = {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
@@ -263,8 +265,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 'progression_format': '{{progress}} %'
             };
 
-            _extends(_this3.options, _this3.defaults, options);
-            return _this3;
+            _extends(_this4.options, _this4.defaults, options);
+            return _this4;
         }
 
         _createClass(_class2, [{
@@ -284,6 +286,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: '_create_elements',
             value: function _create_elements() {
+                var _this5 = this;
+
                 // Progress HTML wrapper
                 this.$progress = document.createElement('div');
                 this.$progress.classList.add('progress');
@@ -314,9 +318,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 // Label at the top or bottom of the progress bar
                 this.$label = document.createElement('span');
-                for (var klass in this.options.label_classes) {
-                    this.$label.classList.add(klass);
-                }
+                this.options.label_classes.forEach(function (klass) {
+                    return _this5.$label.classList.add(klass);
+                });
 
                 if (this.options.label_visible === false) {
                     this.$label.style.display = 'none';
@@ -342,10 +346,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 switch (key) {
                     case 'min':
                     case 'max':
-                    case 'value':
-                        if (key === 'value') {
-                            key = 'now';
-                        }
+                    case 'current':
+                        if (key === 'current') key = 'now';
 
                         this.$progressbar.setAttribute('aria-value' + key, value);
                         break;
@@ -355,6 +357,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                             this.$progressbar.classList.add('progress-bar-striped');
                             this.$progressbar.classList.add('active');
                             this.$progressbar.style.width = '100%';
+                        } else {
+                            this.$progressbar.classList.remove('progress-bar-striped');
+                            this.$progressbar.classList.remove('active');
+                            this.$progressbar.style.width = '';
                         }
                 }
             }
@@ -371,9 +377,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
             _classCallCheck(this, _class3);
 
-            var _this4 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element));
+            var _this6 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element));
 
-            _this4.defaults = {
+            _this6.defaults = {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
@@ -382,8 +388,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 'progression_position': 'right'
             };
 
-            _extends(_this4.options, _this4.defaults, options);
-            return _this4;
+            _extends(_this6.options, _this6.defaults, options);
+            return _this6;
         }
 
         _createClass(_class3, [{
@@ -401,6 +407,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: '_create_elements',
             value: function _create_elements() {
+                var _this7 = this;
+
                 // Progress HTML wrapper
                 this.$progress = document.createElement('div');
                 this.$progress.classList.add('progress');
@@ -417,9 +425,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 // Label at the top or the bottom of the progress bar
                 this.$label = document.createElement('span');
-                for (var klass in this.options.label_classes) {
-                    this.$label.classList.add(klass);
-                }
+                this.options.label_classes.forEach(function (klass) {
+                    return _this7.$label.classList.add(klass);
+                });
 
                 if (this.options.label_visible === false) {
                     this.$label.style.display = 'none';
