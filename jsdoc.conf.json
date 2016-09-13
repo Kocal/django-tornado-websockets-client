@@ -1,0 +1,24 @@
+{
+  "source": {
+    "include": [
+      "package.json",
+      "README.md",
+      "dist/client-es6.js",
+      "dist/modules/progress_bar-es6.js"
+    ]
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "applicationName": "Dtws-client",
+    "cleverLinks": false,
+    "monospaceLinks": false
+  },
+  "opts": {
+    "destination": "./doc/",
+    "encoding": "utf8",
+    "template": "./node_modules/jaguarjs-jsdoc",
+    "private": true
+  }
+}
