@@ -187,7 +187,7 @@
             throw new Error('Method « _render_elements » should be implemented by the engine.')
         }
 
-        _update_label(label) {
+        _update_label(label = '') {
             throw new Error('Method « _update_label » should be implemented by the engine.')
         }
 
@@ -215,16 +215,14 @@
             Object.assign(this.options, this.defaults, options)
         }
 
-        update_progression() {
+        _update_progression() {
             let progression = this.compute_progression()
             this.$progression.textContent = this.format_progression(progression)
             this.$progressbar.style.width = progression + '%'
         }
 
-        update_label(label) {
-            if (label !== void 0) {
-                this.$label.textContent = label
-            }
+        _update_label(label = '') {
+            this.$label.textContent = label
         }
 
         _create_elements() {
@@ -318,11 +316,11 @@
             Object.assign(this.options, this.defaults, options)
         }
 
-        update_progression() {
+        _update_progression() {
             this.$progression.textContent = this.format_progression(this.compute_progression())
         }
 
-        update_label(label) {
+        _update_label(label) {
             if (label !== void 0) {
                 this.$label.textContent = label
             }

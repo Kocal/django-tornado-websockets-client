@@ -231,7 +231,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
             }
         }, {
             key: '_update_label',
-            value: function _update_label(label) {
+            value: function _update_label() {
+                var label = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
                 throw new Error('Method « _update_label » should be implemented by the engine.');
             }
         }, {
@@ -270,18 +272,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }
 
         _createClass(_class2, [{
-            key: 'update_progression',
-            value: function update_progression() {
+            key: '_update_progression',
+            value: function _update_progression() {
                 var progression = this.compute_progression();
                 this.$progression.textContent = this.format_progression(progression);
                 this.$progressbar.style.width = progression + '%';
             }
         }, {
-            key: 'update_label',
-            value: function update_label(label) {
-                if (label !== void 0) {
-                    this.$label.textContent = label;
-                }
+            key: '_update_label',
+            value: function _update_label() {
+                var label = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+
+                this.$label.textContent = label;
             }
         }, {
             key: '_create_elements',
@@ -393,13 +395,13 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }
 
         _createClass(_class3, [{
-            key: 'update_progression',
-            value: function update_progression() {
+            key: '_update_progression',
+            value: function _update_progression() {
                 this.$progression.textContent = this.format_progression(this.compute_progression());
             }
         }, {
-            key: 'update_label',
-            value: function update_label(label) {
+            key: '_update_label',
+            value: function _update_label(label) {
                 if (label !== void 0) {
                     this.$label.textContent = label;
                 }
