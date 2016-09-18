@@ -9,7 +9,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
             it('should correctly prefixed', function () {
                 var progressbar = new ProgressBarModule('foo')
 
-                expect(progressbar.name).toBe('module_progressbar_foo_')
+                expect(progressbar._name).toBe('module_progressbar_foo_')
             })
         })
 
@@ -34,7 +34,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                 spyOn(bootstrapEngine, 'on_update')
                 spyOn(bootstrapEngine, 'update_progressbar_values')
 
-                progressbar.bind_websocket(tws)
+                tws.bind(progressbar)
                 progressbar.set_engine(bootstrapEngine)
 
                 expect(progressbar.engine).toBe(bootstrapEngine)
@@ -44,8 +44,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                 expect(tws.on).toHaveBeenCalledWith('module_progressbar_foo_update', jasmine.any(Function))
                 expect(bootstrapEngine.render).toHaveBeenCalled()
 
-                tws.events['module_progressbar_foo_init']({})
-                tws.events['module_progressbar_foo_update']({})
+                tws._user_events['module_progressbar_foo_init']({})
+                tws._user_events['module_progressbar_foo_update']({})
 
                 expect(bootstrapEngine.on_init).toHaveBeenCalledWith({})
                 expect(bootstrapEngine.on_update).toHaveBeenCalledWith({})
@@ -58,7 +58,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                 var progressbar = new ProgressBarModule('foo')
                 var bootstrapEngine = new ProgressBarModule.EngineBootstrap(document.body)
 
-                progressbar.bind_websocket(tws)
+                tws.bind(progressbar)
                 spyOn(bootstrapEngine, '_handle_progressbar_value')
 
                 expect(progressbar.min).toEqual(void 0)
@@ -107,7 +107,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         var engine = new ProgressBarModule.EngineInterface(document.body)
 
                         expect(engine.$container).toBe(document.body)
-                        expect(engine.defaults).toEqual({})
                         expect(engine.options).toEqual({})
                     }).not.toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
                 })
@@ -310,7 +309,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     it('should assign « real » options with defaults options of the engine', function () {
                         var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
 
-                        expect(engineBootstrap.options).toEqual(engineBootstrap.defaults)
                         expect(engineBootstrap.options).toEqual({
                             'label_visible': true,
                             'label_classes': ['progressbar-label'],
@@ -329,7 +327,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                             'progression_format': 'Progression: {{progress}}%'
                         })
 
-                        expect(engineBootstrap.options).not.toEqual(engineBootstrap.defaults)
                         expect(engineBootstrap.options).toEqual({
                             'label_visible': false,
                             'label_classes': ['progressbar-label'],
@@ -573,7 +570,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     it('should assign « real » options with defaults options of the engine', function () {
                         var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
 
-                        expect(engineHtml5.options).toEqual(engineHtml5.defaults)
                         expect(engineHtml5.options).toEqual({
                             'label_visible': true,
                             'label_classes': ['progressbar-label'],
@@ -590,7 +586,6 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                             'progression_format': 'Progression: {{progress}}%'
                         })
 
-                        expect(engineHtml5.options).not.toEqual(engineHtml5.defaults)
                         expect(engineHtml5.options).toEqual({
                             'label_visible': false,
                             'label_classes': ['progressbar-label'],
