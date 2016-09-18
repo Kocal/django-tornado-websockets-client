@@ -17,28 +17,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
             it('should be inherited by a sub class', function () {
                 var myModule = new MyModule('my_module')
 
-                expect(myModule.name).toBe('module_my_module')
-            })
-        })
-
-        describe('bind_websocket()', function () {
-            it('should fails because no TornadoWebSocket insance', function () {
-                var myModule = new MyModule('my_module_')
-
-                expect(function () {
-                    myModule.bind_websocket('TOP KEK')
-                }).toThrow(new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket.'))
-            })
-
-            it('should not fails with TornadoWebSocket insance', function () {
-                var tws = new TornadoWebSocket('path')
-                var myModule = new MyModule('my_module_')
-
-                expect(function () {
-                    myModule.bind_websocket(tws)
-                }).not.toThrow(new TypeError('Parameter « websocket » should be an instance of TornadoWebSocket.'))
-
-                expect(myModule.websocket).toEqual(tws)
+                expect(myModule._name).toBe('module_my_module')
             })
         })
 
@@ -49,7 +28,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
                 spyOn(tws, 'on')
 
-                myModule.bind_websocket(tws)
+                tws.bind(myModule)
                 myModule.on('my_event', function () {})
 
                 expect(tws.on).toHaveBeenCalledWith('module_my_module_my_event', jasmine.any(Function))
@@ -63,7 +42,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
                 spyOn(tws, 'emit')
 
-                myModule.bind_websocket(tws)
+                tws.bind(myModule)
                 myModule.emit('my_event')
 
                 expect(tws.emit).toHaveBeenCalledWith('module_my_module_my_event', {})
