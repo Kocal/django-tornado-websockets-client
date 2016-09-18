@@ -26,21 +26,20 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
     /**
      * @example
-     * const websocket = new TornadoWebSocket('/my_websocket')
+     * const tws = new TornadoWebSocket('/my_websocket')
      * const progress = new ProgressBar('progress_')
-      * const $container = document.querySelector('#container')
      *
-     * progress.bind_websocket(websocket)
-     * progress.set_engine(new progress.EngineBootstrap($container,
+     * tws.bind_module(progress)
+     * progress.set_engine(new progress.EngineBootstrap(document.querySelector('#container'),
      *     progressbar: {
      *         animated: true,
      *         striped: true
      *     }
      * ))
      *
-     * websocket.on('open', _ => {
+     * tws.on('open', _ => {
      *     // emit 'event'
-     *     websocket.emit('event', ...)
+     *     tws.emit('event', ...)
      *
      *     // emit 'progress_event'
      *     progress.emit('event', ...)
@@ -73,7 +72,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         /**
          * Initialize a new ProgressBarModule object with given parameters.
          *
-         * @param {String}  suffix  String that will prefix events name for TornadoWebSocket's on/emit methods.
+         * @param {String}  suffix  String that will prefix _events name for TornadoWebSocket's on/emit methods.
          */
         function ProgressBar() {
             var suffix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
@@ -96,46 +95,46 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                  * @prop {ProgressBar.EngineInterface}  engine  A progress bar engine that implementing this interface.
                  * @public
                  */
-                this.engine = engine;
+                this._engine = engine;
 
                 this.on('init', function (data) {
-                    _this2.engine.on_init.apply(_this2.engine, [data]);
+                    _this2._engine.on_init.apply(_this2._engine, [data]);
                 });
 
                 this.on('update', function (data) {
-                    _this2.engine.on_update.apply(_this2.engine, [data]);
+                    _this2._engine.on_update.apply(_this2._engine, [data]);
                 });
 
-                this.engine.render();
+                this._engine.render();
             }
         }, {
             key: 'min',
             get: function get() {
-                return this.engine ? this.engine.values.min : void 0;
+                return this._engine ? this._engine._values.min : void 0;
             },
             set: function set(min) {
-                if (this.engine) this.engine.update_progressbar_values({ min: min });
+                if (this._engine) this._engine.update_progressbar_values({ min: min });
             }
         }, {
             key: 'max',
             get: function get() {
-                return this.engine ? this.engine.values.max : void 0;
+                return this._engine ? this._engine._values.max : void 0;
             },
             set: function set(max) {
-                if (this.engine) this.engine.update_progressbar_values({ max: max });
+                if (this._engine) this._engine.update_progressbar_values({ max: max });
             }
         }, {
             key: 'current',
             get: function get() {
-                return this.engine ? this.engine.values.current : void 0;
+                return this._engine ? this._engine._values.current : void 0;
             },
             set: function set(current) {
-                if (this.engine) this.engine.update_progressbar_values({ current: current });
+                if (this._engine) this._engine.update_progressbar_values({ current: current });
             }
         }, {
             key: 'progression',
             get: function get() {
-                return this.engine ? this.engine.compute_progression() : void 0;
+                return this._engine ? this._engine.compute_progression() : void 0;
             }
         }]);
 
@@ -150,13 +149,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 throw new TypeError('Parameter « $container » should be an instance of HTMLElement.');
             }
 
-            this.$container = $container;
+            this._$container = $container;
 
-            this.defaults = {};
+            this._options = {};
 
-            this.options = {};
-
-            this.values = {};
+            this._values = {};
         }
 
         _createClass(_class, [{
@@ -197,12 +194,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: 'compute_progression',
             value: function compute_progression() {
-                return (this.values.current - this.values.min) * 100 / (this.values.max - this.values.min);
+                return (this._values.current - this._values.min) * 100 / (this._values.max - this._values.min);
             }
         }, {
             key: 'format_progression',
             value: function format_progression(progression) {
-                return this.options.progression_format.replace(/\{\{ *progress *}}/g, progression);
+                return this._options.progression_format.replace(/\{\{ *progress *}}/g, progression);
             }
         }, {
             key: 'update_progressbar_values',
@@ -210,7 +207,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var _this3 = this;
 
                 Object.keys(values).forEach(function (key) {
-                    _this3.values[key] = values[key];
+                    _this3._values[key] = values[key];
                     _this3._handle_progressbar_value(key, values[key]);
                 });
             }
@@ -256,7 +253,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
             var _this4 = _possibleConstructorReturn(this, (_class2.__proto__ || Object.getPrototypeOf(_class2)).call(this, $container));
 
-            _this4.defaults = {
+            _this4._options = _extends({}, {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
@@ -265,9 +262,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 'progressbar_animated': false,
                 'progression_visible': true,
                 'progression_format': '{{progress}} %'
-            };
-
-            _extends(_this4.options, _this4.defaults, options);
+            }, options);
             return _this4;
         }
 
@@ -275,15 +270,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
             key: '_update_progression',
             value: function _update_progression() {
                 var progression = this.compute_progression();
-                this.$progression.textContent = this.format_progression(progression);
-                this.$progressbar.style.width = progression + '%';
+                this._$progression.textContent = this.format_progression(progression);
+                this._$progressbar.style.width = progression + '%';
             }
         }, {
             key: '_update_label',
             value: function _update_label() {
                 var label = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
-                this.$label.textContent = label;
+                this._$label.textContent = label;
             }
         }, {
             key: '_create_elements',
@@ -291,55 +286,55 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var _this5 = this;
 
                 // Progress HTML wrapper
-                this.$progress = document.createElement('div');
-                this.$progress.classList.add('progress');
+                this._$progress = document.createElement('div');
+                this._$progress.classList.add('progress');
 
                 // Progress bar
-                this.$progressbar = document.createElement('div');
-                this.$progressbar.classList.add('progress-bar');
-                this.$progressbar.setAttribute('role', 'progressbar');
+                this._$progressbar = document.createElement('div');
+                this._$progressbar.classList.add('progress-bar');
+                this._$progressbar.setAttribute('role', 'progressbar');
 
-                if (['info', 'success', 'warning', 'danger'].indexOf(this.options.progressbar_context) !== -1) {
-                    this.$progressbar.classList.add('progress-bar-' + this.options.progressbar_context);
+                if (['info', 'success', 'warning', 'danger'].indexOf(this._options.progressbar_context) !== -1) {
+                    this._$progressbar.classList.add('progress-bar-' + this._options.progressbar_context);
                 }
 
-                if (this.options.progressbar_striped === true) {
-                    this.$progressbar.classList.add('progress-bar-striped');
+                if (this._options.progressbar_striped === true) {
+                    this._$progressbar.classList.add('progress-bar-striped');
 
                     // the progress bar can not be animated if it's not striped in Bootstrap (but it's logic :)) )
-                    if (this.options.progressbar_animated === true) {
-                        this.$progressbar.classList.add('active');
+                    if (this._options.progressbar_animated === true) {
+                        this._$progressbar.classList.add('active');
                     }
                 }
 
                 // Progression text (in the progress bar)
-                this.$progression = document.createElement('span');
-                if (this.options.progression_visible === false) {
-                    this.$progression.classList.add('sr-only');
+                this._$progression = document.createElement('span');
+                if (this._options.progression_visible === false) {
+                    this._$progression.classList.add('sr-only');
                 }
 
                 // Label at the top or bottom of the progress bar
-                this.$label = document.createElement('span');
-                this.options.label_classes.forEach(function (klass) {
-                    return _this5.$label.classList.add(klass);
+                this._$label = document.createElement('span');
+                this._options.label_classes.forEach(function (klass) {
+                    return _this5._$label.classList.add(klass);
                 });
 
-                if (this.options.label_visible === false) {
-                    this.$label.style.display = 'none';
+                if (this._options.label_visible === false) {
+                    this._$label.style.display = 'none';
                 }
             }
         }, {
             key: '_render_elements',
             value: function _render_elements() {
-                this.$progressbar.appendChild(this.$progression);
-                this.$progress.appendChild(this.$progressbar);
-                this.$container.appendChild(this.$progress);
+                this._$progressbar.appendChild(this._$progression);
+                this._$progress.appendChild(this._$progressbar);
+                this._$container.appendChild(this._$progress);
 
-                if (this.options.label_position === 'top') {
-                    this.$container.insertBefore(this.$label, this.$progress);
+                if (this._options.label_position === 'top') {
+                    this._$container.insertBefore(this._$label, this._$progress);
                 } else {
                     // bottom :^)
-                    this.$container.appendChild(this.$label);
+                    this._$container.appendChild(this._$label);
                 }
             }
         }, {
@@ -351,18 +346,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     case 'current':
                         if (key === 'current') key = 'now';
 
-                        this.$progressbar.setAttribute('aria-value' + key, value);
+                        this._$progressbar.setAttribute('aria-value' + key, value);
                         break;
 
                     case 'indeterminate':
                         if (value === true) {
-                            this.$progressbar.classList.add('progress-bar-striped');
-                            this.$progressbar.classList.add('active');
-                            this.$progressbar.style.width = '100%';
+                            this._$progressbar.classList.add('progress-bar-striped');
+                            this._$progressbar.classList.add('active');
+                            this._$progressbar.style.width = '100%';
                         } else {
-                            this.$progressbar.classList.remove('progress-bar-striped');
-                            this.$progressbar.classList.remove('active');
-                            this.$progressbar.style.width = '';
+                            this._$progressbar.classList.remove('progress-bar-striped');
+                            this._$progressbar.classList.remove('active');
+                            this._$progressbar.style.width = '';
                         }
                 }
             }
@@ -374,35 +369,33 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     ProgressBar.EngineHtml5 = function (_ProgressBar$EngineIn2) {
         _inherits(_class3, _ProgressBar$EngineIn2);
 
-        function _class3($element) {
+        function _class3($container) {
             var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
             _classCallCheck(this, _class3);
 
-            var _this6 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $element));
+            var _this6 = _possibleConstructorReturn(this, (_class3.__proto__ || Object.getPrototypeOf(_class3)).call(this, $container));
 
-            _this6.defaults = {
+            _this6._options = _extends({}, {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
                 'progression_visible': true,
                 'progression_format': '{{progress}}%',
                 'progression_position': 'right'
-            };
-
-            _extends(_this6.options, _this6.defaults, options);
+            }, options);
             return _this6;
         }
 
         _createClass(_class3, [{
             key: '_update_progression',
             value: function _update_progression() {
-                this.$progression.textContent = this.format_progression(this.compute_progression());
+                this._$progression.textContent = this.format_progression(this.compute_progression());
             }
         }, {
             key: '_update_label',
             value: function _update_label(label) {
-                this.$label.textContent = label;
+                this._$label.textContent = label;
             }
         }, {
             key: '_create_elements',
@@ -410,43 +403,43 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var _this7 = this;
 
                 // Progress HTML wrapper
-                this.$progress = document.createElement('div');
-                this.$progress.classList.add('progress');
+                this._$progress = document.createElement('div');
+                this._$progress.classList.add('progress');
 
                 // Progress bar
-                this.$progressbar = document.createElement('progress');
-                this.$progressbar.classList.add('progress-bar');
+                this._$progressbar = document.createElement('progress');
+                this._$progressbar.classList.add('progress-bar');
 
                 // Progression text (at the left/right of the progress bar)
-                this.$progression = document.createElement('span');
-                if (this.options.progression_visible === false) {
-                    this.$progression.style.display = 'none';
+                this._$progression = document.createElement('span');
+                if (this._options.progression_visible === false) {
+                    this._$progression.style.display = 'none';
                 }
 
                 // Label at the top or the bottom of the progress bar
-                this.$label = document.createElement('span');
-                this.options.label_classes.forEach(function (klass) {
-                    return _this7.$label.classList.add(klass);
+                this._$label = document.createElement('span');
+                this._options.label_classes.forEach(function (klass) {
+                    return _this7._$label.classList.add(klass);
                 });
 
-                if (this.options.label_visible === false) {
-                    this.$label.style.display = 'none';
+                if (this._options.label_visible === false) {
+                    this._$label.style.display = 'none';
                 }
             }
         }, {
             key: '_render_elements',
             value: function _render_elements() {
-                this.$progress.appendChild(this.$progressbar);
-                this.$container.appendChild(this.$progress);
-                if (this.options.label_position === 'top') {
-                    this.$container.insertBefore(this.$label, this.$progress);
+                this._$progress.appendChild(this._$progressbar);
+                this._$container.appendChild(this._$progress);
+                if (this._options.label_position === 'top') {
+                    this._$container.insertBefore(this._$label, this._$progress);
                 } else {
-                    this.$container.appendChild(this.$label);
+                    this._$container.appendChild(this._$label);
                 }
-                if (this.options.progression_position === 'left') {
-                    this.$progressbar.parentNode.insertBefore(this.$progression, this.$progressbar);
+                if (this._options.progression_position === 'left') {
+                    this._$progressbar.parentNode.insertBefore(this._$progression, this._$progressbar);
                 } else {
-                    this.$progressbar.parentNode.insertBefore(this.$progression, this.$progressbar.nextSibling);
+                    this._$progressbar.parentNode.insertBefore(this._$progression, this._$progressbar.nextSibling);
                 }
             }
         }, {
@@ -459,18 +452,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     case 'value':
                         if (key === 'current') key = 'value';
 
-                        this.$progressbar.setAttribute(key, value);
+                        this._$progressbar.setAttribute(key, value);
                         break;
                     case 'indeterminate':
                         if (value === true) {
-                            this.$progressbar.removeAttribute('min');
-                            this.$progressbar.removeAttribute('max');
-                            this.$progressbar.removeAttribute('value');
+                            this._$progressbar.removeAttribute('min');
+                            this._$progressbar.removeAttribute('max');
+                            this._$progressbar.removeAttribute('value');
                         } else {
                             this.update_progressbar_values({
-                                'min': this.values.min,
-                                'max': this.values.max,
-                                'current': this.values.current
+                                'min': this._values.min,
+                                'max': this._values.max,
+                                'current': this._values.current
                             });
                         }
                 }

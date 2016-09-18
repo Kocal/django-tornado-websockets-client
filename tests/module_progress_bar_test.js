@@ -37,7 +37,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                 tws.bind(progressbar)
                 progressbar.set_engine(bootstrapEngine)
 
-                expect(progressbar.engine).toBe(bootstrapEngine)
+                expect(progressbar._engine).toBe(bootstrapEngine)
                 expect(progressbar.on).toHaveBeenCalledWith('init', jasmine.any(Function))
                 expect(progressbar.on).toHaveBeenCalledWith('update', jasmine.any(Function))
                 expect(tws.on).toHaveBeenCalledWith('module_progressbar_foo_init', jasmine.any(Function))
@@ -106,8 +106,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     expect(function () {
                         var engine = new ProgressBarModule.EngineInterface(document.body)
 
-                        expect(engine.$container).toBe(document.body)
-                        expect(engine.options).toEqual({})
+                        expect(engine._$container).toBe(document.body)
+                        expect(engine._options).toEqual({})
                     }).not.toThrow(new TypeError('Parameter « $container » should be an instance of HTMLElement.'))
                 })
             })
@@ -212,13 +212,13 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                 it('should correctly format the progression with user defined template', function () {
                     var engine = new ProgressBarModule.EngineInterface(document.body)
 
-                    engine.options.progression_format = 'Progression: {{progress}}%'
+                    engine._options.progression_format = 'Progression: {{progress}}%'
                     expect(engine.format_progression(50)).toEqual('Progression: 50%')
 
-                    engine.options.progression_format = '{{ progress }}% {{ progress}}%'
+                    engine._options.progression_format = '{{ progress }}% {{ progress}}%'
                     expect(engine.format_progression(20)).toEqual('20% 20%')
 
-                    engine.options.progression_format = '{{progress }}%'
+                    engine._options.progression_format = '{{progress }}%'
                     expect(engine.format_progression(100)).toEqual('100%')
                 })
             })
@@ -229,17 +229,17 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                     spyOn(engine, '_handle_progressbar_value')
 
-                    expect(engine.values.min).toBeUndefined()
-                    expect(engine.values.max).toBeUndefined()
-                    expect(engine.values.current).toBeUndefined()
+                    expect(engine._values.min).toBeUndefined()
+                    expect(engine._values.max).toBeUndefined()
+                    expect(engine._values.current).toBeUndefined()
 
                     engine.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
 
-                    expect(engine.values.min).toEqual(0)
+                    expect(engine._values.min).toEqual(0)
                     expect(engine._handle_progressbar_value).toHaveBeenCalledWith('min', 0)
-                    expect(engine.values.max).toEqual(100)
+                    expect(engine._values.max).toEqual(100)
                     expect(engine._handle_progressbar_value).toHaveBeenCalledWith('max', 100)
-                    expect(engine.values.current).toEqual(50)
+                    expect(engine._values.current).toEqual(50)
                     expect(engine._handle_progressbar_value).toHaveBeenCalledWith('current', 50)
                 })
             })
@@ -309,7 +309,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     it('should assign « real » options with defaults options of the engine', function () {
                         var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
 
-                        expect(engineBootstrap.options).toEqual({
+                        expect(engineBootstrap._options).toEqual({
                             'label_visible': true,
                             'label_classes': ['progressbar-label'],
                             'label_position': 'top',
@@ -327,7 +327,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                             'progression_format': 'Progression: {{progress}}%'
                         })
 
-                        expect(engineBootstrap.options).toEqual({
+                        expect(engineBootstrap._options).toEqual({
                             'label_visible': false,
                             'label_classes': ['progressbar-label'],
                             'label_position': 'top',
@@ -364,8 +364,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineBootstrap.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
                         engineBootstrap._update_progression()
 
-                        expect(engineBootstrap.$progression.textContent).toEqual('Progression: 50%')
-                        expect(engineBootstrap.$progressbar.style.width).toEqual('50%')
+                        expect(engineBootstrap._$progression.textContent).toEqual('Progression: 50%')
+                        expect(engineBootstrap._$progressbar.style.width).toEqual('50%')
                     })
                 })
 
@@ -376,13 +376,13 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         })
 
                         engineBootstrap.render()
-                        expect(engineBootstrap.$label.textContent).toEqual('')
+                        expect(engineBootstrap._$label.textContent).toEqual('')
 
                         engineBootstrap._update_label('foo')
-                        expect(engineBootstrap.$label.textContent).toEqual('foo')
+                        expect(engineBootstrap._$label.textContent).toEqual('foo')
 
                         engineBootstrap._update_label()
-                        expect(engineBootstrap.$label.textContent).toEqual('')
+                        expect(engineBootstrap._$label.textContent).toEqual('')
                     })
                 })
 
@@ -390,33 +390,33 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     it('should create elements by following the default behavior', function () {
                         var engineBootstrap = new ProgressBarModule.EngineBootstrap(document.body)
 
-                        expect(engineBootstrap.$progress).toBeUndefined()
-                        expect(engineBootstrap.$progression).toBeUndefined()
-                        expect(engineBootstrap.$progressbar).toBeUndefined()
-                        expect(engineBootstrap.$label).toBeUndefined()
+                        expect(engineBootstrap._$progress).toBeUndefined()
+                        expect(engineBootstrap._$progression).toBeUndefined()
+                        expect(engineBootstrap._$progressbar).toBeUndefined()
+                        expect(engineBootstrap._$label).toBeUndefined()
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progress).toEqual(jasmine.any(HTMLDivElement))
-                        expect(engineBootstrap.$progress.classList).toContain('progress')
+                        expect(engineBootstrap._$progress).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineBootstrap._$progress.classList).toContain('progress')
 
-                        expect(engineBootstrap.$progressbar).toEqual(jasmine.any(HTMLDivElement))
-                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar')
-                        expect(engineBootstrap.$progressbar.getAttribute('role')).toEqual('progressbar')
-                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-info')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-success')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-warning')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-danger')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap._$progressbar).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineBootstrap._$progressbar.classList).toContain('progress-bar')
+                        expect(engineBootstrap._$progressbar.getAttribute('role')).toEqual('progressbar')
+                        expect(engineBootstrap._$progressbar.classList).toContain('progress-bar-info')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-success')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-warning')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-danger')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('active')
 
-                        expect(engineBootstrap.$progression).toEqual(jasmine.any(HTMLSpanElement))
-                        expect(engineBootstrap.$progression).not.toContain('sr-only')
+                        expect(engineBootstrap._$progression).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineBootstrap._$progression).not.toContain('sr-only')
 
-                        expect(engineBootstrap.$label).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineBootstrap._$label).toEqual(jasmine.any(HTMLSpanElement))
                         // Can't compare a DOMTokenList ($label.classList) to an array with .toEqual method
-                        expect(engineBootstrap.$label.className.split(' ')).toEqual(['progressbar-label'])
-                        expect(engineBootstrap.$label.style.display).not.toEqual('none')
+                        expect(engineBootstrap._$label.className.split(' ')).toEqual(['progressbar-label'])
+                        expect(engineBootstrap._$label.style.display).not.toEqual('none')
                     })
 
                     it('should not allow an invalid `progressbar_context`', function () {
@@ -426,11 +426,11 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-info')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-success')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-warning')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-danger')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-foo')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-info')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-success')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-warning')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-danger')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-foo')
                     })
 
                     it('should « strip » the progressbar', function () {
@@ -440,8 +440,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap._$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('active')
                     })
 
                     it('should not animate the progressbar because it\'s not striped', function () {
@@ -451,8 +451,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('active')
                     })
 
                     it('should correctly animate the progressbar when it\'s not striped', function () {
@@ -463,8 +463,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).toContain('active')
+                        expect(engineBootstrap._$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).toContain('active')
                     })
 
                     it('the $progression should be screen-reader visible only', function () {
@@ -474,7 +474,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$progression.classList).toContain('sr-only')
+                        expect(engineBootstrap._$progression.classList).toContain('sr-only')
                     })
 
                     it('the $label should not be visible ', function () {
@@ -484,7 +484,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap._create_elements()
 
-                        expect(engineBootstrap.$label.style.display).toEqual('none')
+                        expect(engineBootstrap._$label.style.display).toEqual('none')
                     })
                 })
 
@@ -495,10 +495,10 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineBootstrap._create_elements()
                         engineBootstrap._render_elements()
 
-                        expect(engineBootstrap.$progression.parentNode).toEqual(engineBootstrap.$progressbar)
-                        expect(engineBootstrap.$progressbar.parentNode).toEqual(engineBootstrap.$progress)
-                        expect(engineBootstrap.$progress.parentNode).toEqual(engineBootstrap.$container)
-                        expect(engineBootstrap.$label.nextSibling).toEqual(engineBootstrap.$progress)
+                        expect(engineBootstrap._$progression.parentNode).toEqual(engineBootstrap._$progressbar)
+                        expect(engineBootstrap._$progressbar.parentNode).toEqual(engineBootstrap._$progress)
+                        expect(engineBootstrap._$progress.parentNode).toEqual(engineBootstrap._$container)
+                        expect(engineBootstrap._$label.nextSibling).toEqual(engineBootstrap._$progress)
                     })
 
                     it('should render elements with $label at the bottom', function () {
@@ -508,7 +508,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap.render()
 
-                        expect(engineBootstrap.$progress.nextSibling).toEqual(engineBootstrap.$label)
+                        expect(engineBootstrap._$progress.nextSibling).toEqual(engineBootstrap._$label)
                     })
                 })
 
@@ -518,17 +518,17 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap.render()
 
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemin')).toBeNull()
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemax')).toBeNull()
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuenow')).toBeNull()
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuemin')).toBeNull()
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuemax')).toBeNull()
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuenow')).toBeNull()
 
                         engineBootstrap._handle_progressbar_value('min', 0)
                         engineBootstrap._handle_progressbar_value('max', 100)
                         engineBootstrap._handle_progressbar_value('current', 50)
 
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemin')).toEqual('0')
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuemax')).toEqual('100')
-                        expect(engineBootstrap.$progressbar.getAttribute('aria-valuenow')).toEqual('50')
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuemin')).toEqual('0')
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuemax')).toEqual('100')
+                        expect(engineBootstrap._$progressbar.getAttribute('aria-valuenow')).toEqual('50')
                     })
 
                     it('should correctly set the progressbar in an indeterminate mode', function () {
@@ -536,21 +536,21 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineBootstrap.render()
 
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
-                        expect(engineBootstrap.$progressbar.style.width).not.toEqual('100%')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap._$progressbar.style.width).not.toEqual('100%')
 
                         engineBootstrap._handle_progressbar_value('indeterminate', true)
 
-                        expect(engineBootstrap.$progressbar.classList).toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).toContain('active')
-                        expect(engineBootstrap.$progressbar.style.width).toEqual('100%')
+                        expect(engineBootstrap._$progressbar.classList).toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).toContain('active')
+                        expect(engineBootstrap._$progressbar.style.width).toEqual('100%')
 
                         engineBootstrap._handle_progressbar_value('indeterminate', false)
 
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('progress-bar-striped')
-                        expect(engineBootstrap.$progressbar.classList).not.toContain('active')
-                        expect(engineBootstrap.$progressbar.style.width).not.toEqual('100%')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('progress-bar-striped')
+                        expect(engineBootstrap._$progressbar.classList).not.toContain('active')
+                        expect(engineBootstrap._$progressbar.style.width).not.toEqual('100%')
                     })
                 })
             })
@@ -570,7 +570,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                     it('should assign « real » options with defaults options of the engine', function () {
                         var engineHtml5 = new ProgressBarModule.EngineHtml5(document.body)
 
-                        expect(engineHtml5.options).toEqual({
+                        expect(engineHtml5._options).toEqual({
                             'label_visible': true,
                             'label_classes': ['progressbar-label'],
                             'label_position': 'top',
@@ -586,7 +586,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                             'progression_format': 'Progression: {{progress}}%'
                         })
 
-                        expect(engineHtml5.options).toEqual({
+                        expect(engineHtml5._options).toEqual({
                             'label_visible': false,
                             'label_classes': ['progressbar-label'],
                             'label_position': 'top',
@@ -621,7 +621,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineHtml5.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
                         engineHtml5._update_progression()
 
-                        expect(engineHtml5.$progression.textContent).toEqual('Progression: 50%')
+                        expect(engineHtml5._$progression.textContent).toEqual('Progression: 50%')
                     })
                 })
 
@@ -632,13 +632,13 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         })
 
                         engineHtml5.render()
-                        expect(engineHtml5.$label.textContent).toEqual('')
+                        expect(engineHtml5._$label.textContent).toEqual('')
 
                         engineHtml5._update_label('foo')
-                        expect(engineHtml5.$label.textContent).toEqual('foo')
+                        expect(engineHtml5._$label.textContent).toEqual('foo')
 
                         engineHtml5._update_label()
-                        expect(engineHtml5.$label.textContent).toEqual('')
+                        expect(engineHtml5._$label.textContent).toEqual('')
                     })
                 })
 
@@ -648,19 +648,19 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineHtml5._create_elements()
 
-                        expect(engineHtml5.$progress).toEqual(jasmine.any(HTMLDivElement))
-                        expect(engineHtml5.$progress.classList).toContain('progress')
+                        expect(engineHtml5._$progress).toEqual(jasmine.any(HTMLDivElement))
+                        expect(engineHtml5._$progress.classList).toContain('progress')
 
-                        expect(engineHtml5.$progressbar).toEqual(jasmine.any(HTMLProgressElement))
-                        expect(engineHtml5.$progressbar.classList).toContain('progress-bar')
+                        expect(engineHtml5._$progressbar).toEqual(jasmine.any(HTMLProgressElement))
+                        expect(engineHtml5._$progressbar.classList).toContain('progress-bar')
 
-                        expect(engineHtml5.$progression).toEqual(jasmine.any(HTMLSpanElement))
-                        expect(engineHtml5.$progression.style.display).not.toBe('none')
+                        expect(engineHtml5._$progression).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineHtml5._$progression.style.display).not.toBe('none')
 
-                        expect(engineHtml5.$label).toEqual(jasmine.any(HTMLSpanElement))
+                        expect(engineHtml5._$label).toEqual(jasmine.any(HTMLSpanElement))
                         // Can't compare a DOMTokenList ($label.classList) to an array with .toEqual method
-                        expect(engineHtml5.$label.className.split(' ')).toEqual(['progressbar-label'])
-                        expect(engineHtml5.$label.style.display).not.toEqual('none')
+                        expect(engineHtml5._$label.className.split(' ')).toEqual(['progressbar-label'])
+                        expect(engineHtml5._$label.style.display).not.toEqual('none')
                     })
 
                     it('the $progression should be screen-reader visible only', function () {
@@ -670,7 +670,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineHtml5._create_elements()
 
-                        expect(engineHtml5.$progression.style.display).toEqual('none')
+                        expect(engineHtml5._$progression.style.display).toEqual('none')
                     })
 
                     it('the $label should not be visible ', function () {
@@ -680,7 +680,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineHtml5._create_elements()
 
-                        expect(engineHtml5.$label.style.display).toEqual('none')
+                        expect(engineHtml5._$label.style.display).toEqual('none')
                     })
                 })
 
@@ -691,10 +691,10 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineHtml5._create_elements()
                         engineHtml5._render_elements()
 
-                        expect(engineHtml5.$progressbar.parentNode).toEqual(engineHtml5.$progress)
-                        expect(engineHtml5.$progress.parentNode).toEqual(engineHtml5.$container)
-                        expect(engineHtml5.$label.nextSibling).toEqual(engineHtml5.$progress)
-                        expect(engineHtml5.$progressbar.nextSibling).toEqual(engineHtml5.$progression)
+                        expect(engineHtml5._$progressbar.parentNode).toEqual(engineHtml5._$progress)
+                        expect(engineHtml5._$progress.parentNode).toEqual(engineHtml5._$container)
+                        expect(engineHtml5._$label.nextSibling).toEqual(engineHtml5._$progress)
+                        expect(engineHtml5._$progressbar.nextSibling).toEqual(engineHtml5._$progression)
                     })
 
                     it('should render elements with $label at the bottom of the progress bar', function () {
@@ -705,7 +705,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineHtml5._create_elements()
                         engineHtml5._render_elements()
 
-                        expect(engineHtml5.$progress.nextSibling).toEqual(engineHtml5.$label)
+                        expect(engineHtml5._$progress.nextSibling).toEqual(engineHtml5._$label)
                     })
 
                     it('should render elements with $progression at the left of the progress bar', function () {
@@ -716,7 +716,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
                         engineHtml5._create_elements()
                         engineHtml5._render_elements()
 
-                        expect(engineHtml5.$progression.nextSibling).toEqual(engineHtml5.$progressbar)
+                        expect(engineHtml5._$progression.nextSibling).toEqual(engineHtml5._$progressbar)
                     })
                 })
 
@@ -726,17 +726,17 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineHtml5.render()
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toBeNull()
 
                         engineHtml5._handle_progressbar_value('min', 0)
                         engineHtml5._handle_progressbar_value('max', 100)
                         engineHtml5._handle_progressbar_value('current', 50)
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toEqual('50')
                     })
 
                     it('should correctly set the progressbar in an indeterminate mode', function () {
@@ -744,27 +744,27 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ProgressBarMo
 
                         engineHtml5.render()
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toBeNull()
 
                         engineHtml5.update_progressbar_values({'min': 0, 'max': 100, 'current': 50})
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toEqual('50')
 
                         engineHtml5._handle_progressbar_value('indeterminate', true)
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toBeNull()
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toBeNull()
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toBeNull()
 
                         engineHtml5._handle_progressbar_value('indeterminate', false)
 
-                        expect(engineHtml5.$progressbar.getAttribute('min')).toEqual('0')
-                        expect(engineHtml5.$progressbar.getAttribute('max')).toEqual('100')
-                        expect(engineHtml5.$progressbar.getAttribute('value')).toEqual('50')
+                        expect(engineHtml5._$progressbar.getAttribute('min')).toEqual('0')
+                        expect(engineHtml5._$progressbar.getAttribute('max')).toEqual('100')
+                        expect(engineHtml5._$progressbar.getAttribute('value')).toEqual('50')
                     })
                 })
             })

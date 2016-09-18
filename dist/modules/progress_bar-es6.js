@@ -12,22 +12,20 @@
 
     /**
      * @example
-     * const websocket = new TornadoWebSocket('/my_websocket')
+     * const tws = new TornadoWebSocket('/my_websocket')
      * const progress = new ProgressBar('progress_')
-
-     * const $container = document.querySelector('#container')
      *
-     * progress.bind_websocket(websocket)
-     * progress.set_engine(new progress.EngineBootstrap($container,
+     * tws.bind_module(progress)
+     * progress.set_engine(new progress.EngineBootstrap(document.querySelector('#container'),
      *     progressbar: {
      *         animated: true,
      *         striped: true
      *     }
      * ))
      *
-     * websocket.on('open', _ => {
+     * tws.on('open', _ => {
      *     // emit 'event'
-     *     websocket.emit('event', ...)
+     *     tws.emit('event', ...)
      *
      *     // emit 'progress_event'
      *     progress.emit('event', ...)
@@ -53,12 +51,12 @@
      *     })
      * })
      */
-    let ProgressBar = class extends TornadoWebSocket.Module {
+    class ProgressBar extends TornadoWebSocket.Module {
 
         /**
          * Initialize a new ProgressBarModule object with given parameters.
          *
-         * @param {String}  suffix  String that will prefix events name for TornadoWebSocket's on/emit methods.
+         * @param {String}  suffix  String that will prefix _events name for TornadoWebSocket's on/emit methods.
          */
         constructor(suffix = '') {
             super(`progressbar_${suffix}_`)
@@ -73,45 +71,45 @@
              * @prop {ProgressBar.EngineInterface}  engine  A progress bar engine that implementing this interface.
              * @public
              */
-            this.engine = engine
+            this._engine = engine
 
             this.on('init', (data) => {
-                this.engine.on_init.apply(this.engine, [data])
+                this._engine.on_init.apply(this._engine, [data])
             })
 
             this.on('update', (data) => {
-                this.engine.on_update.apply(this.engine, [data])
+                this._engine.on_update.apply(this._engine, [data])
             })
 
-            this.engine.render()
+            this._engine.render()
         }
 
         get min() {
-            return (this.engine ? this.engine.values.min : void 0)
+            return (this._engine ? this._engine._values.min : void 0)
         }
 
         set min(min) {
-            if (this.engine) this.engine.update_progressbar_values({min})
+            if (this._engine) this._engine.update_progressbar_values({min})
         }
 
         get max() {
-            return (this.engine ? this.engine.values.max : void 0)
+            return (this._engine ? this._engine._values.max : void 0)
         }
 
         set max(max) {
-            if (this.engine) this.engine.update_progressbar_values({max})
+            if (this._engine) this._engine.update_progressbar_values({max})
         }
 
         get current() {
-            return (this.engine ? this.engine.values.current : void 0)
+            return (this._engine ? this._engine._values.current : void 0)
         }
 
         set current(current) {
-            if (this.engine) this.engine.update_progressbar_values({current})
+            if (this._engine) this._engine.update_progressbar_values({current})
         }
 
         get progression() {
-            return (this.engine ? this.engine.compute_progression() : void 0)
+            return (this._engine ? this._engine.compute_progression() : void 0)
         }
     }
 
@@ -122,13 +120,11 @@
                 throw new TypeError('Parameter « $container » should be an instance of HTMLElement.')
             }
 
-            this.$container = $container
+            this._$container = $container
 
-            this.defaults = {}
+            this._options = {}
 
-            this.options = {}
-
-            this.values = {}
+            this._values = {}
         }
 
         render() {
@@ -161,16 +157,16 @@
         }
 
         compute_progression() {
-            return (this.values.current - this.values.min) * 100 / (this.values.max - this.values.min)
+            return (this._values.current - this._values.min) * 100 / (this._values.max - this._values.min)
         }
 
         format_progression(progression) {
-            return this.options.progression_format.replace(/\{\{ *progress *}}/g, progression)
+            return this._options.progression_format.replace(/\{\{ *progress *}}/g, progression)
         }
 
         update_progressbar_values(values) {
             Object.keys(values).forEach(key => {
-                this.values[key] = values[key]
+                this._values[key] = values[key]
                 this._handle_progressbar_value(key, values[key])
             })
         }
@@ -201,7 +197,7 @@
         constructor($container, options = {}) {
             super($container)
 
-            this.defaults = {
+            this._options = Object.assign({}, {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
@@ -210,68 +206,66 @@
                 'progressbar_animated': false,
                 'progression_visible': true,
                 'progression_format': '{{progress}} %',
-            }
-
-            Object.assign(this.options, this.defaults, options)
+            }, options)
         }
 
         _update_progression() {
             let progression = this.compute_progression()
-            this.$progression.textContent = this.format_progression(progression)
-            this.$progressbar.style.width = progression + '%'
+            this._$progression.textContent = this.format_progression(progression)
+            this._$progressbar.style.width = progression + '%'
         }
 
         _update_label(label = '') {
-            this.$label.textContent = label
+            this._$label.textContent = label
         }
 
         _create_elements() {
             // Progress HTML wrapper
-            this.$progress = document.createElement('div')
-            this.$progress.classList.add('progress')
+            this._$progress = document.createElement('div')
+            this._$progress.classList.add('progress')
 
             // Progress bar
-            this.$progressbar = document.createElement('div')
-            this.$progressbar.classList.add('progress-bar')
-            this.$progressbar.setAttribute('role', 'progressbar')
+            this._$progressbar = document.createElement('div')
+            this._$progressbar.classList.add('progress-bar')
+            this._$progressbar.setAttribute('role', 'progressbar')
 
-            if (['info', 'success', 'warning', 'danger'].includes(this.options.progressbar_context)) {
-                this.$progressbar.classList.add('progress-bar-' + this.options.progressbar_context)
+            if (['info', 'success', 'warning', 'danger'].includes(this._options.progressbar_context)) {
+                this._$progressbar.classList.add('progress-bar-' + this._options.progressbar_context)
             }
 
-            if (this.options.progressbar_striped === true) {
-                this.$progressbar.classList.add('progress-bar-striped')
+            if (this._options.progressbar_striped === true) {
+                this._$progressbar.classList.add('progress-bar-striped')
 
                 // the progress bar can not be animated if it's not striped in Bootstrap (but it's logic :)) )
-                if (this.options.progressbar_animated === true) {
-                    this.$progressbar.classList.add('active')
+                if (this._options.progressbar_animated === true) {
+                    this._$progressbar.classList.add('active')
                 }
             }
 
             // Progression text (in the progress bar)
-            this.$progression = document.createElement('span')
-            if (this.options.progression_visible === false) {
-                this.$progression.classList.add('sr-only')
+            this._$progression = document.createElement('span')
+            if (this._options.progression_visible === false) {
+                this._$progression.classList.add('sr-only')
             }
 
             // Label at the top or bottom of the progress bar
-            this.$label = document.createElement('span')
-            this.options.label_classes.forEach(klass => this.$label.classList.add(klass))
+            this._$label = document.createElement('span')
+            this._options.label_classes.forEach(klass => this._$label.classList.add(klass))
 
-            if (this.options.label_visible === false) {
-                this.$label.style.display = 'none'
+            if (this._options.label_visible === false) {
+                this._$label.style.display = 'none'
             }
         }
 
         _render_elements() {
-            this.$progressbar.appendChild(this.$progression)
-            this.$progress.appendChild(this.$progressbar)
-            this.$container.appendChild(this.$progress)
+            this._$progressbar.appendChild(this._$progression)
+            this._$progress.appendChild(this._$progressbar)
+            this._$container.appendChild(this._$progress)
 
-            if (this.options.label_position === 'top') {
-                this.$container.insertBefore(this.$label, this.$progress)
+            if (this._options.label_position === 'top') {
+                this._$container.insertBefore(this._$label, this._$progress)
             } else { // bottom :^)
-                this.$container.appendChild(this.$label)
+                this._$container.appendChild(this._$label)
             }
         }
 
@@ -282,18 +276,18 @@
             case 'current':
                 if (key === 'current') key = 'now'
 
-                this.$progressbar.setAttribute('aria-value' + key, value)
+                this._$progressbar.setAttribute('aria-value' + key, value)
                 break
 
             case 'indeterminate':
                 if (value === true) {
-                    this.$progressbar.classList.add('progress-bar-striped')
-                    this.$progressbar.classList.add('active')
-                    this.$progressbar.style.width = '100%'
+                    this._$progressbar.classList.add('progress-bar-striped')
+                    this._$progressbar.classList.add('active')
+                    this._$progressbar.style.width = '100%'
                 } else {
-                    this.$progressbar.classList.remove('progress-bar-striped')
-                    this.$progressbar.classList.remove('active')
-                    this.$progressbar.style.width = ''
+                    this._$progressbar.classList.remove('progress-bar-striped')
+                    this._$progressbar.classList.remove('active')
+                    this._$progressbar.style.width = ''
                 }
             }
         }
@@ -301,65 +295,63 @@
 
     ProgressBar.EngineHtml5 = class extends ProgressBar.EngineInterface {
 
-        constructor($element, options = {}) {
-            super($element)
+        constructor($container, options = {}) {
+            super($container)
 
-            this.defaults = {
+            this._options = Object.assign({}, {
                 'label_visible': true,
                 'label_classes': ['progressbar-label'],
                 'label_position': 'top',
                 'progression_visible': true,
                 'progression_format': '{{progress}}%',
                 'progression_position': 'right'
-            }
-
-            Object.assign(this.options, this.defaults, options)
+            }, options)
         }
 
         _update_progression() {
-            this.$progression.textContent = this.format_progression(this.compute_progression())
+            this._$progression.textContent = this.format_progression(this.compute_progression())
         }
 
         _update_label(label) {
-            this.$label.textContent = label
+            this._$label.textContent = label
         }
 
         _create_elements() {
             // Progress HTML wrapper
-            this.$progress = document.createElement('div')
-            this.$progress.classList.add('progress')
+            this._$progress = document.createElement('div')
+            this._$progress.classList.add('progress')
 
             // Progress bar
-            this.$progressbar = document.createElement('progress')
-            this.$progressbar.classList.add('progress-bar')
+            this._$progressbar = document.createElement('progress')
+            this._$progressbar.classList.add('progress-bar')
 
             // Progression text (at the left/right of the progress bar)
-            this.$progression = document.createElement('span')
-            if (this.options.progression_visible === false) {
-                this.$progression.style.display = 'none'
+            this._$progression = document.createElement('span')
+            if (this._options.progression_visible === false) {
+                this._$progression.style.display = 'none'
             }
 
             // Label at the top or the bottom of the progress bar
-            this.$label = document.createElement('span')
-            this.options.label_classes.forEach(klass => this.$label.classList.add(klass))
+            this._$label = document.createElement('span')
+            this._options.label_classes.forEach(klass => this._$label.classList.add(klass))
 
-            if (this.options.label_visible === false) {
-                this.$label.style.display = 'none'
+            if (this._options.label_visible === false) {
+                this._$label.style.display = 'none'
             }
         }
 
         _render_elements() {
-            this.$progress.appendChild(this.$progressbar)
-            this.$container.appendChild(this.$progress)
-            if (this.options.label_position === 'top') {
-                this.$container.insertBefore(this.$label, this.$progress)
+            this._$progress.appendChild(this._$progressbar)
+            this._$container.appendChild(this._$progress)
+            if (this._options.label_position === 'top') {
+                this._$container.insertBefore(this._$label, this._$progress)
             } else {
-                this.$container.appendChild(this.$label)
+                this._$container.appendChild(this._$label)
             }
-            if (this.options.progression_position === 'left') {
-                this.$progressbar.parentNode.insertBefore(this.$progression, this.$progressbar)
+            if (this._options.progression_position === 'left') {
+                this._$progressbar.parentNode.insertBefore(this._$progression, this._$progressbar)
             } else {
-                this.$progressbar.parentNode.insertBefore(this.$progression, this.$progressbar.nextSibling)
+                this._$progressbar.parentNode.insertBefore(this._$progression, this._$progressbar.nextSibling)
 
             }
         }
@@ -372,18 +364,18 @@
             case 'value':
                 if (key === 'current') key = 'value'
 
-                this.$progressbar.setAttribute(key, value)
+                this._$progressbar.setAttribute(key, value)
                 break
             case 'indeterminate':
                 if (value === true) {
-                    this.$progressbar.removeAttribute('min')
-                    this.$progressbar.removeAttribute('max')
-                    this.$progressbar.removeAttribute('value')
+                    this._$progressbar.removeAttribute('min')
+                    this._$progressbar.removeAttribute('max')
+                    this._$progressbar.removeAttribute('value')
                 } else {
                     this.update_progressbar_values({
-                        'min': this.values.min,
-                        'max': this.values.max,
-                        'current': this.values.current
+                        'min': this._values.min,
+                        'max': this._values.max,
+                        'current': this._values.current
                     })
                 }
             }
