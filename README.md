@@ -7,6 +7,8 @@
 JavaScript's WebSocket wrapper for [django-tornado-websockets](https://github.com/Kocal/django-tornado-websockets) 
 project, used as a submodule.
 
+---
+
 ## Installation
 
 ```bash
@@ -41,7 +43,7 @@ That's mean that you can use [AMD](https://en.wikipedia.org/wiki/Asynchronous_mo
 [CommonJS](https://en.wikipedia.org/wiki/CommonJS), or browser globals.
 
 ### Usage with [RequireJS](http://requirejs.org/)
-```
+```bash
 public
 ├── index.html
 └── js
@@ -96,13 +98,14 @@ public
 var tws = new TornadoWebSocket(/* ... */)
 ```
 
-#### Using TWS's Modules
-As said just before, TornadoWebSocket comes with its own modules. 
+### Using DTWS-client's Modules
+As said just before, this project comes with its own modules. 
 
-##### ProgressBar
-Currently, there is only one module « ProgressBar », which makes easier the communication with 
-[Progress Bar server-side module](http://django-tornado-websockets.readthedocs.io/en/stable/modules.html#progress-bar), 
-and also the rendering by HTML5 or Bootstrap engines.
+#### {@link ModuleProgressBar}
+This module helps to:
+- Communicate with the [Progress Bar server-side module](http://django-tornado-websockets.readthedocs.io/en/stable/modules.html#progress-bar), 
+- Handle the behavior of a progress bar (`init`, `update`, `done` events),
+- Render a progress bar by using HTML5 or Bootstrap rendering.
 
 *index.html*
 ```html
@@ -117,9 +120,9 @@ and also the rendering by HTML5 or Bootstrap engines.
 
 *js/main.js*
 ```javascript
-function main(TornadoWebSocket, ProgressBarModule) {
+function main(TornadoWebSocket, ModuleProgressBar) {
     var tws = new TornadoWebSocket(/* ... */)
-    var progress = new ProgressBarModule(/* ... */)
+    var progress = new ModuleProgressBar(/* ... */)
     
     tws.bind(progress)
 }
@@ -130,26 +133,24 @@ require(['tws/tornadowebsocket-es6', 'tws/modules/progress_bar-es6'], main)
 require(['tws/tornadowebsocket', 'tws/modules/progress_bar'], main)
 
 // With browser globals
-main(window.TornadoWebSocket, window.ProgressBarModule)
+main(window.TornadoWebSocket, window.ModuleProgressBar)
 ```
 
-## Miscellaneous
+## npm scripts
 
-### npm scripts
-
-#### doc
+### doc
 Generate the API documentation with [JSDoc](http://usejsdoc.org).
 
-#### test
+### test
 Run unit tests by using [Karma](https://karma-runner.github.io) and [Jasmine](http://jasmine.github.io).
 
-### gulp tasks
+## gulp tasks
 
-#### default
-Watch ES6 source files and run the « scripts » task.
+### default
+Watch ES6 source files and run the `scripts` task.
 
-#### scripts
-1. Glob ES6 source files 
-2. Use [ESLint](http://eslint.org/) on them
+### scripts
+1. Glob ES6 source files,
+2. Use [ESLint](http://eslint.org/) on them,
 3. Distribute a ES6 version, 
-4. Run [Babel](https://babeljs.io/) on them and generate a non-ES6 version 
+4. Run [Babel](https://babeljs.io/) on them and generate a non-ES6 version.
