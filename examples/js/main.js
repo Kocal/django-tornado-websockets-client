@@ -37,7 +37,7 @@ require(['tws/tornadowebsocket-es6'], function (TornadoWebSocket) {
         console.log(event)
     })
 
-    ws.on('message', (data) => {
+    ws.on('new_message', (data) => {
         $response.textContent = data.message
     })
 })
