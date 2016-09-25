@@ -138,8 +138,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ModuleProgres
                     spyOn(engine, 'on_update')
                     spyOn(engine, 'update_values')
 
-                    // @TODO change 'value' to 'current'
-                    engine.on_init({'indeterminate': false, 'min': 0, 'value': 100, 'max': 250})
+                    engine.on_init({'indeterminate': false, 'min': 0, 'current': 100, 'max': 250})
 
                     expect(engine.update_values).toHaveBeenCalledWith({
                         'min': 0,
@@ -161,7 +160,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ModuleProgres
 
                     engine.on_update({'current': 50, 'label': '[50/100] Progression...'})
 
-                    expect(engine.update_values).toHaveBeenCalledWith({'current': 50})
+                    expect(engine.update_values).toHaveBeenCalledWith({'current': 50, 'label': '[50/100] Progression...'})
                     expect(engine._update_progression).toHaveBeenCalled()
                     expect(engine._update_label).toHaveBeenCalledWith('[50/100] Progression...')
                 })
@@ -175,13 +174,13 @@ define(window.__env__['dependencies'], function (TornadoWebSocket, ModuleProgres
                     spyOn(engine, 'on_update')
 
                     // @TODO change 'value' to 'current'
-                    engine.on_init({'indeterminate': false, 'min': 0, 'value': 50, 'max': 100})
+                    engine.on_init({'indeterminate': false, 'min': 0, 'current': 50, 'max': 100})
                     expect(engine.compute_progression()).toEqual(50)
 
-                    engine.on_init({'indeterminate': false, 'min': 100, 'value': 150, 'max': 200})
+                    engine.on_init({'indeterminate': false, 'min': 100, 'current': 150, 'max': 200})
                     expect(engine.compute_progression()).toEqual(50)
 
-                    engine.on_init({'indeterminate': false, 'min': 0, 'value': 2, 'max': 10})
+                    engine.on_init({'indeterminate': false, 'min': 0, 'current': 2, 'max': 10})
                     expect(engine.compute_progression()).toEqual(20)
                 })
             })
