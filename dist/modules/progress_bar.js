@@ -245,12 +245,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var indeterminate = datas.indeterminate;
 
                 if (datas.indeterminate === false) {
-                    // ???
-                    // {min, max, value} = datas
-
+                    // `{min, max, current} = datas` is not working xd
                     min = datas.min;
                     max = datas.max;
-                    current = datas.value;
+                    current = datas.current;
                 }
 
                 this.update_values({ min: min, max: max, current: current, indeterminate: indeterminate });
@@ -266,7 +264,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }, {
             key: 'on_update',
             value: function on_update(datas) {
-                this.update_values({ 'current': datas.current });
+                this.update_values(datas);
                 this._update_progression();
                 this._update_label(datas.label);
             }
@@ -626,9 +624,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                     case 'min':
                     case 'max':
                     case 'current':
-                    case 'value':
                         if (key === 'current') key = 'value';
-
                         this._$progressbar.setAttribute(key, value);
                         break;
                     case 'indeterminate':
