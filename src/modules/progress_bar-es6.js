@@ -5,72 +5,81 @@
     } else if (typeof module === 'object' && module.exports) {
         module.exports = factory(require('tornadowebsocket-es6'))
     } else {
-        root.ProgressBarModule = factory(root.TornadoWebSocket)
+        root.ModuleProgressBar = factory(root.TornadoWebSocket)
     }
 }(this, function (TornadoWebSocket) {
     'use strict'
 
     /**
      * @example
-     * const tws = new TornadoWebSocket('/my_websocket')
-     * const progress = new ProgressBar('progress_')
+     * let tws = new TornadoWebSocket('/my_websocket')
+     * let progress = new ModuleProgressBar('foo')
      *
-     * tws.bind_module(progress)
-     * progress.set_engine(new progress.EngineBootstrap(document.querySelector('#container'),
-     *     progressbar: {
-     *         animated: true,
-     *         striped: true
-     *     }
-     * ))
+     * // Bind the module is essential
+     * tws.bind(progress)
+     *
+     * // Use the Bootstrap engine
+     * progress.set_engine(new ModuleProgressBar.EngineBootstrap(document.querySelector('#container'), {
+     *     'progressbar_striped': true,
+     *     'progressbar_animated': true
+     * }))
      *
      * tws.on('open', _ => {
-     *     // emit 'event'
+     *     // Emit 'event'
      *     tws.emit('event', ...)
      *
-     *     // emit 'progress_event'
-     *     progress.emit('event', ...)
+     *     // Emit 'module_progressbar_foo_event'
+     *     progress.emit('event')
      *
-     *     progress.on('before_init', _ => {
-     *         // Is called before progress bar initialization
-     *     })
+     *     // Listen `module_progressbar_foo_event` event
+     *     progress.on('event', _ => {})
      *
-     *     progress.on('after_init', _ => {
-     *         // Is called after progress bar initialization
-     *     })
+     *     // The next 5 events are specials and you should overload them since you can't touch to
+     *     // `init` and `update` events.
      *
-     *     progress.on('before_update', _ => {
-     *         // Is called before progress bar update
-     *     })
+     *     // Is called before progress bar initialization
+     *     progress.on('before_init', _ => {})
      *
-     *     progress.on('after_update', _ => {
-     *         // Is called after progress bar update
-     *     })
+     *     // Is called after progress bar initialization
+     *     progress.on('after_init', _ => {})
      *
-     *     progress.on('done', _ => {
-     *         // Is called when progression is done
-     *     })
+     *     // Is called before progress bar update
+     *     progress.on('before_update', _ => {})
+     *
+     *     // Is called after progress bar update
+     *     progress.on('after_update', _ => {})
+     *
+     *     // Is called when the progression is done (100%)
+     *     progress.on('done', _ => {})
      * })
      */
-    class ProgressBar extends TornadoWebSocket.Module {
+    class ModuleProgressBar extends TornadoWebSocket.Module {
 
         /**
-         * Initialize a new ProgressBarModule object with given parameters.
+         * Initialize a new ModuleProgressBar object with given parameters.
          *
-         * @param {String}  suffix  String that will prefix _events name for TornadoWebSocket's on/emit methods.
+         * @param {String=}  name  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
-        constructor(suffix = '') {
-            super(`progressbar_${suffix}_`)
-        }
-
-        set_engine(engine) {
-            if (!(engine instanceof ProgressBar.EngineInterface)) {
-                throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine.')
-            }
+        constructor(name = '') {
+            super(`progressbar_${name}_`)
 
             /**
-             * @prop {ProgressBar.EngineInterface}  engine  A progress bar engine that implementing this interface.
-             * @public
+             * A progress bar engine that implementing {@link ModuleProgressBar.EngineInterface}.
+             * @type {ModuleProgressBar.EngineInterface}
+             * @private
              */
+            this._engine = null
+        }
+
+        /**
+         * Set the rendering engine.
+         * @param {ModuleProgressBar.EngineInterface}  engine  Engine to attach
+         */
+        set_engine(engine) {
+            if (!(engine instanceof ModuleProgressBar.EngineInterface)) {
+                throw new TypeError('Parameter « engine » should be an instance of ModuleProgressBar.EngineInterface.')
+            }
+
             this._engine = engine
 
             this.on('init', (data) => {
@@ -84,116 +93,224 @@
             this._engine.render()
         }
 
+        /**
+         * Returns the minimum value of the progress bar.
+         * @type {Number}
+         */
         get min() {
-            return (this._engine ? this._engine._values.min : void 0)
+            return (this._engine ? this._engine.values.min : void 0)
         }
 
-        set min(min) {
-            if (this._engine) this._engine.update_progressbar_values({min})
-        }
-
+        /**
+         * Returns the maximum value of the progress bar.
+         * @type {Number}
+         */
         get max() {
-            return (this._engine ? this._engine._values.max : void 0)
+            return (this._engine ? this._engine.values.max : void 0)
         }
 
-        set max(max) {
-            if (this._engine) this._engine.update_progressbar_values({max})
-        }
-
+        /**
+         * Return the current value of the progress bar.
+         * @type {Number}
+         */
         get current() {
-            return (this._engine ? this._engine._values.current : void 0)
+            return (this._engine ? this._engine.values.current : void 0)
         }
 
-        set current(current) {
-            if (this._engine) this._engine.update_progressbar_values({current})
-        }
-
+        /**
+         * Return the progression in percentage of the progress bar.
+         * @type {Number}
+         */
         get progression() {
             return (this._engine ? this._engine.compute_progression() : void 0)
         }
     }
 
-    ProgressBar.EngineInterface = class {
+    /**
+     * Describe an interface for the ModuleProgressBar's rendering engine.
+     *
+     * @memberOf ModuleProgressBar
+     * @interface
+     */
+    ModuleProgressBar.EngineInterface = class {
 
+        /**
+         * @param {HTMLElement}  $container  HTML container which contains the progress bar
+         */
         constructor($container) {
             if ($container === void 0 || !($container instanceof HTMLElement)) {
                 throw new TypeError('Parameter « $container » should be an instance of HTMLElement.')
             }
 
+            /**
+             * HTML container which will contains the progress bar.
+             * @type {HTMLElement}
+             * @private
+             */
             this._$container = $container
 
+            /**
+             * Configuration values.
+             * @type {Object}
+             * @private
+             */
             this._options = {}
 
+            /**
+             * Values of the progress bar (min, max, ...).
+             * @type {Object}
+             * @private
+             */
             this._values = {}
         }
 
+        /**
+         * Returns {@link ModuleProgressBar.EngineInterface#_values}.
+         * @type {Object}
+         */
+        get values() { return this._values}
+
+        /**
+         * Create the HTML elements and render them.
+         */
         render() {
             this._create_elements()
             this._render_elements()
         }
 
+        /**
+         * Is called when progress bar's event « init » is received.
+         *
+         * @param  {Object}  datas  An object of datas.
+         */
         on_init(datas) {
             // default values
             let [min, max, current] = [0, 100, 0]
             let indeterminate = datas.indeterminate
 
             if (datas.indeterminate === false) {
-                // next line is not working, I'm probably retarded XD :)
+                // ???
                 // {min, max, value} = datas
 
                 min = datas.min
                 max = datas.max
-                current = datas.value // @TODO Change .value to .current (server side)
+                current = datas.value
             }
 
-            this.update_progressbar_values({min, max, current, indeterminate})
-            this.on_update({current}) // @TODO value to current . . .
+            this.update_values({min, max, current, indeterminate})
+            this.on_update({current})
         }
 
+        /**
+         * Is called when progress bar's event « update » is received.
+         *
+         * @param  {Object}  datas  An object of datas.
+         */
         on_update(datas) {
-            this.update_progressbar_values({'current': datas.current}) // @TODO value to current . . .
+            this.update_values({'current': datas.current})
             this._update_progression()
             this._update_label(datas.label)
         }
 
+        /**
+         * Compute the actual progression, and return a percentage between 0 and 100.
+         * @return {number}
+         */
         compute_progression() {
             return (this._values.current - this._values.min) * 100 / (this._values.max - this._values.min)
         }
 
-        format_progression(progression) {
-            return this._options.progression_format.replace(/\{\{ *progress *}}/g, progression)
+        /**
+         * Format a progression.
+         *
+         * @param  {String}  format       A string which should contains `{{progress}}`
+         * @param  {Number}  progression  The value of progression to display.
+         * @return {String}
+         */
+        format_progression(format, progression) {
+            return format.replace(/\{\{ *progress *}}/g, progression)
         }
 
-        update_progressbar_values(values) {
+        /**
+         * Store keys and values in {@link ModuleProgressBar.EngineInterface#_values} object, and then call
+         * {@link ModuleProgressBar.EngineInterface#_handle_value} method.
+         * @param {Object}  values  The values.
+         */
+        update_values(values) {
             Object.keys(values).forEach(key => {
                 this._values[key] = values[key]
-                this._handle_progressbar_value(key, values[key])
+                this._handle_value(key, values[key])
             })
         }
 
-        _handle_progressbar_value(key, value) {
-            throw new Error('Method « _handle_progressbar_value » should be implemented by the engine.')
+        /**
+         * Handle a key/value combination after call of {@link ModuleProgressBar.EngineInterface#update_values} method.
+         * @abstract
+         * @param {*}  key    The key associated to the value.
+         * @param {*}  value  The value associated to the key.
+         * @private
+         */
+        _handle_value(key, value) {
+            throw new Error('Method « _handle_value » should be implemented by the engine.')
         }
 
+        /**
+         * Create the HTML elements.
+         * @abstract
+         * @private
+         */
         _create_elements() {
             throw new Error('Method « _create_elements » should be implemented by the engine.')
         }
 
+        /**
+         * Render the HTML elements.
+         * @abstract
+         * @private
+         */
         _render_elements() {
             throw new Error('Method « _render_elements » should be implemented by the engine.')
         }
 
+        /**
+         * Update the label text with the given one.
+         * @abstract
+         * @param {String=}  label  New text content
+         * @private
+         */
         _update_label(label = '') {
             throw new Error('Method « _update_label » should be implemented by the engine.')
         }
 
+        /**
+         * Compute and then update the progression text.
+         * @abstract
+         * @private
+         */
         _update_progression() {
             throw new Error('Method « _update_progression » should be implemented by the engine.')
         }
     }
 
-    ProgressBar.EngineBootstrap = class extends ProgressBar.EngineInterface {
+    /**
+     * {@link http://getbootstrap.com|Bootstrap} rendering engine.
+     * @memberOf ModuleProgressBar
+     * @implements {ModuleProgressBar.EngineInterface}
+     */
+    ModuleProgressBar.EngineBootstrap = class extends ModuleProgressBar.EngineInterface {
 
+        /**
+         * @param {HTMLElement}  $container                                     HTML element which contains the progress bar
+         * @param {Object=}      [options={}]                                   Configuration values
+         * @param {Boolean}      [options.label_visible=true]                   Display the label if `true`
+         * @param {Array}        [options.label_classes=['progressbar-label']]  Classes to attach to the label
+         * @param {String}       [options.label_position='top']                 Position of the label depending of the progress bar
+         * @param {String}       [options.progressbar_context='info']           The context, can also be `success`, `warning` or `danger`
+         * @param {String}       [options.progressbar_striped=false]            Display stripes if `true`
+         * @param {String}       [options.progressbar_animated=false]           Start an animation if `true`, requires `progressbar_striped` to be `true` too
+         * @param {String}       [options.progression_visible=true]             Display the progression if `true`
+         * @param {String}       [options.progression_format='{{progress}} %']  The progression format
+         */
         constructor($container, options = {}) {
             super($container)
 
@@ -209,14 +326,14 @@
             }, options)
         }
 
-        _update_progression() {
-            let progression = this.compute_progression()
-            this._$progression.textContent = this.format_progression(progression)
-            this._$progressbar.style.width = progression + '%'
-        }
-
         _update_label(label = '') {
             this._$label.textContent = label
+        }
+
+        _update_progression() {
+            const progression = this.compute_progression()
+            this._$progression.textContent = this.format_progression(this._options.progression_format, progression)
+            this._$progressbar.style.width = progression + '%'
         }
 
         _create_elements() {
@@ -269,7 +386,7 @@
             }
         }
 
-        _handle_progressbar_value(key, value) {
+        _handle_value(key, value) {
             switch (key) {
             case 'min':
             case 'max':
@@ -293,8 +410,23 @@
         }
     }
 
-    ProgressBar.EngineHtml5 = class extends ProgressBar.EngineInterface {
+    /**
+     * HTML5 rendering engine.
+     * @memberOf ModuleProgressBar
+     * @implements {ModuleProgressBar.EngineInterface}
+     */
+    ModuleProgressBar.EngineHtml5 = class extends ModuleProgressBar.EngineInterface {
 
+        /**
+         * @param {HTMLElement}  $container                                     HTML element which contains the progress bar
+         * @param {Object=}      [options={}]                                   Configuration values
+         * @param {Boolean}      [options.label_visible=true]                   Display the label if `true`
+         * @param {Array}        [options.label_classes=['progressbar-label']]  Classes to attach to the label
+         * @param {String}       [options.label_position='top']                 Position of the label depending of the progress bar
+         * @param {String}       [options.progression_visible=true]             Display the progression if `true`
+         * @param {String}       [options.progression_format='{{progress}} %']  The progression format
+         * @param {String}       [options.progression_position='right']         Position of the progression depending of the progress bar
+         */
         constructor($container, options = {}) {
             super($container)
 
@@ -308,12 +440,13 @@
             }, options)
         }
 
-        _update_progression() {
-            this._$progression.textContent = this.format_progression(this.compute_progression())
-        }
-
         _update_label(label) {
             this._$label.textContent = label
+        }
+
+        _update_progression() {
+            const progression = this.compute_progression()
+            this._$progression.textContent = this.format_progression(this._options.progression_format, progression)
         }
 
         _create_elements() {
@@ -356,7 +489,7 @@
             }
         }
 
-        _handle_progressbar_value(key, value) {
+        _handle_value(key, value) {
             switch (key) {
             case 'min':
             case 'max':
@@ -372,7 +505,7 @@
                     this._$progressbar.removeAttribute('max')
                     this._$progressbar.removeAttribute('value')
                 } else {
-                    this.update_progressbar_values({
+                    this.update_values({
                         'min': this._values.min,
                         'max': this._values.max,
                         'current': this._values.current
@@ -382,5 +515,5 @@
         }
     }
 
-    return ProgressBar
+    return ModuleProgressBar
 }))

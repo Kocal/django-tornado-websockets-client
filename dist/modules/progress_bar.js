@@ -19,82 +19,94 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
     } else if ((typeof module === 'undefined' ? 'undefined' : _typeof(module)) === 'object' && module.exports) {
         module.exports = factory(require('tornadowebsocket'));
     } else {
-        root.ProgressBarModule = factory(root.TornadoWebSocket);
+        root.ModuleProgressBar = factory(root.TornadoWebSocket);
     }
 })(undefined, function (TornadoWebSocket) {
     'use strict';
 
     /**
      * @example
-     * const tws = new TornadoWebSocket('/my_websocket')
-     * const progress = new ProgressBar('progress_')
+     * let tws = new TornadoWebSocket('/my_websocket')
+     * let progress = new ModuleProgressBar('foo')
      *
-     * tws.bind_module(progress)
-     * progress.set_engine(new progress.EngineBootstrap(document.querySelector('#container'),
-     *     progressbar: {
-     *         animated: true,
-     *         striped: true
-     *     }
-     * ))
+     * // Bind the module is essential
+     * tws.bind(progress)
+     *
+     * // Use the Bootstrap engine
+     * progress.set_engine(new ModuleProgressBar.EngineBootstrap(document.querySelector('#container'), {
+     *     'progressbar_striped': true,
+     *     'progressbar_animated': true
+     * }))
      *
      * tws.on('open', _ => {
-     *     // emit 'event'
+     *     // Emit 'event'
      *     tws.emit('event', ...)
      *
-     *     // emit 'progress_event'
-     *     progress.emit('event', ...)
+     *     // Emit 'module_progressbar_foo_event'
+     *     progress.emit('event')
      *
-     *     progress.on('before_init', _ => {
-     *         // Is called before progress bar initialization
-     *     })
+     *     // Listen `module_progressbar_foo_event` event
+     *     progress.on('event', _ => {})
      *
-     *     progress.on('after_init', _ => {
-     *         // Is called after progress bar initialization
-     *     })
+     *     // The next 5 events are specials and you should overload them since you can't touch to
+     *     // `init` and `update` events.
      *
-     *     progress.on('before_update', _ => {
-     *         // Is called before progress bar update
-     *     })
+     *     // Is called before progress bar initialization
+     *     progress.on('before_init', _ => {})
      *
-     *     progress.on('after_update', _ => {
-     *         // Is called after progress bar update
-     *     })
+     *     // Is called after progress bar initialization
+     *     progress.on('after_init', _ => {})
      *
-     *     progress.on('done', _ => {
-     *         // Is called when progression is done
-     *     })
+     *     // Is called before progress bar update
+     *     progress.on('before_update', _ => {})
+     *
+     *     // Is called after progress bar update
+     *     progress.on('after_update', _ => {})
+     *
+     *     // Is called when the progression is done (100%)
+     *     progress.on('done', _ => {})
      * })
      */
 
-    var ProgressBar = function (_TornadoWebSocket$Mod) {
-        _inherits(ProgressBar, _TornadoWebSocket$Mod);
+    var ModuleProgressBar = function (_TornadoWebSocket$Mod) {
+        _inherits(ModuleProgressBar, _TornadoWebSocket$Mod);
 
         /**
-         * Initialize a new ProgressBarModule object with given parameters.
+         * Initialize a new ModuleProgressBar object with given parameters.
          *
-         * @param {String}  suffix  String that will prefix _events name for TornadoWebSocket's on/emit methods.
+         * @param {String=}  name  String that will prefix events name for TornadoWebSocket's on/emit methods.
          */
-        function ProgressBar() {
-            var suffix = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+        function ModuleProgressBar() {
+            var name = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
-            _classCallCheck(this, ProgressBar);
+            _classCallCheck(this, ModuleProgressBar);
 
-            return _possibleConstructorReturn(this, (ProgressBar.__proto__ || Object.getPrototypeOf(ProgressBar)).call(this, 'progressbar_' + suffix + '_'));
+            /**
+             * A progress bar engine that implementing {@link ModuleProgressBar.EngineInterface}.
+             * @type {ModuleProgressBar.EngineInterface}
+             * @private
+             */
+            var _this = _possibleConstructorReturn(this, (ModuleProgressBar.__proto__ || Object.getPrototypeOf(ModuleProgressBar)).call(this, 'progressbar_' + name + '_'));
+
+            _this._engine = null;
+            return _this;
         }
 
-        _createClass(ProgressBar, [{
+        /**
+         * Set the rendering engine.
+         * @param {ModuleProgressBar.EngineInterface}  engine  Engine to attach
+         */
+
+
+        _createClass(ModuleProgressBar, [{
             key: 'set_engine',
             value: function set_engine(engine) {
                 var _this2 = this;
 
-                if (!(engine instanceof ProgressBar.EngineInterface)) {
-                    throw new TypeError('Parameter « engine » should be an instance of ProgressBarModuleEngine.');
+                if (!(engine instanceof ModuleProgressBar.EngineInterface)) {
+                    throw new TypeError('Parameter « engine » should be an instance of ModuleProgressBar.EngineInterface.');
                 }
 
-                /**
-                 * @prop {ProgressBar.EngineInterface}  engine  A progress bar engine that implementing this interface.
-                 * @public
-                 */
                 this._engine = engine;
 
                 this.on('init', function (data) {
@@ -107,30 +119,45 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 this._engine.render();
             }
+
+            /**
+             * Returns the minimum value of the progress bar.
+             * @type {Number}
+             */
+
         }, {
             key: 'min',
             get: function get() {
-                return this._engine ? this._engine._values.min : void 0;
-            },
-            set: function set(min) {
-                if (this._engine) this._engine.update_progressbar_values({ min: min });
+                return this._engine ? this._engine.values.min : void 0;
             }
+
+            /**
+             * Returns the maximum value of the progress bar.
+             * @type {Number}
+             */
+
         }, {
             key: 'max',
             get: function get() {
-                return this._engine ? this._engine._values.max : void 0;
-            },
-            set: function set(max) {
-                if (this._engine) this._engine.update_progressbar_values({ max: max });
+                return this._engine ? this._engine.values.max : void 0;
             }
+
+            /**
+             * Return the current value of the progress bar.
+             * @type {Number}
+             */
+
         }, {
             key: 'current',
             get: function get() {
-                return this._engine ? this._engine._values.current : void 0;
-            },
-            set: function set(current) {
-                if (this._engine) this._engine.update_progressbar_values({ current: current });
+                return this._engine ? this._engine.values.current : void 0;
             }
+
+            /**
+             * Return the progression in percentage of the progress bar.
+             * @type {Number}
+             */
+
         }, {
             key: 'progression',
             get: function get() {
@@ -138,10 +165,22 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
             }
         }]);
 
-        return ProgressBar;
+        return ModuleProgressBar;
     }(TornadoWebSocket.Module);
 
-    ProgressBar.EngineInterface = function () {
+    /**
+     * Describe an interface for the ModuleProgressBar's rendering engine.
+     *
+     * @memberOf ModuleProgressBar
+     * @interface
+     */
+
+
+    ModuleProgressBar.EngineInterface = function () {
+
+        /**
+         * @param {HTMLElement}  $container  HTML container which contains the progress bar
+         */
         function _class($container) {
             _classCallCheck(this, _class);
 
@@ -149,19 +188,52 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 throw new TypeError('Parameter « $container » should be an instance of HTMLElement.');
             }
 
+            /**
+             * HTML container which will contains the progress bar.
+             * @type {HTMLElement}
+             * @private
+             */
             this._$container = $container;
 
+            /**
+             * Configuration values.
+             * @type {Object}
+             * @private
+             */
             this._options = {};
 
+            /**
+             * Values of the progress bar (min, max, ...).
+             * @type {Object}
+             * @private
+             */
             this._values = {};
         }
 
+        /**
+         * Returns {@link ModuleProgressBar.EngineInterface#_values}.
+         * @type {Object}
+         */
+
+
         _createClass(_class, [{
             key: 'render',
+
+
+            /**
+             * Create the HTML elements and render them.
+             */
             value: function render() {
                 this._create_elements();
                 this._render_elements();
             }
+
+            /**
+             * Is called when progress bar's event « init » is received.
+             *
+             * @param  {Object}  datas  An object of datas.
+             */
+
         }, {
             key: 'on_init',
             value: function on_init(datas) {
@@ -173,59 +245,119 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 var indeterminate = datas.indeterminate;
 
                 if (datas.indeterminate === false) {
-                    // next line is not working, I'm probably retarded XD :)
+                    // ???
                     // {min, max, value} = datas
 
                     min = datas.min;
                     max = datas.max;
-                    current = datas.value; // @TODO Change .value to .current (server side)
+                    current = datas.value;
                 }
 
-                this.update_progressbar_values({ min: min, max: max, current: current, indeterminate: indeterminate });
-                this.on_update({ current: current }); // @TODO value to current . . .
+                this.update_values({ min: min, max: max, current: current, indeterminate: indeterminate });
+                this.on_update({ current: current });
             }
+
+            /**
+             * Is called when progress bar's event « update » is received.
+             *
+             * @param  {Object}  datas  An object of datas.
+             */
+
         }, {
             key: 'on_update',
             value: function on_update(datas) {
-                this.update_progressbar_values({ 'current': datas.current }); // @TODO value to current . . .
+                this.update_values({ 'current': datas.current });
                 this._update_progression();
                 this._update_label(datas.label);
             }
+
+            /**
+             * Compute the actual progression, and return a percentage between 0 and 100.
+             * @return {number}
+             */
+
         }, {
             key: 'compute_progression',
             value: function compute_progression() {
                 return (this._values.current - this._values.min) * 100 / (this._values.max - this._values.min);
             }
+
+            /**
+             * Format a progression.
+             *
+             * @param  {String}  format       A string which should contains `{{progress}}`
+             * @param  {Number}  progression  The value of progression to display.
+             * @return {String}
+             */
+
         }, {
             key: 'format_progression',
-            value: function format_progression(progression) {
-                return this._options.progression_format.replace(/\{\{ *progress *}}/g, progression);
+            value: function format_progression(format, progression) {
+                return format.replace(/\{\{ *progress *}}/g, progression);
             }
+
+            /**
+             * Store keys and values in {@link ModuleProgressBar.EngineInterface#_values} object, and then call
+             * {@link ModuleProgressBar.EngineInterface#_handle_value} method.
+             * @param {Object}  values  The values.
+             */
+
         }, {
-            key: 'update_progressbar_values',
-            value: function update_progressbar_values(values) {
+            key: 'update_values',
+            value: function update_values(values) {
                 var _this3 = this;
 
                 Object.keys(values).forEach(function (key) {
                     _this3._values[key] = values[key];
-                    _this3._handle_progressbar_value(key, values[key]);
+                    _this3._handle_value(key, values[key]);
                 });
             }
+
+            /**
+             * Handle a key/value combination after call of {@link ModuleProgressBar.EngineInterface#update_values} method.
+             * @abstract
+             * @param {*}  key    The key associated to the value.
+             * @param {*}  value  The value associated to the key.
+             * @private
+             */
+
         }, {
-            key: '_handle_progressbar_value',
-            value: function _handle_progressbar_value(key, value) {
-                throw new Error('Method « _handle_progressbar_value » should be implemented by the engine.');
+            key: '_handle_value',
+            value: function _handle_value(key, value) {
+                throw new Error('Method « _handle_value » should be implemented by the engine.');
             }
+
+            /**
+             * Create the HTML elements.
+             * @abstract
+             * @private
+             */
+
         }, {
             key: '_create_elements',
             value: function _create_elements() {
                 throw new Error('Method « _create_elements » should be implemented by the engine.');
             }
+
+            /**
+             * Render the HTML elements.
+             * @abstract
+             * @private
+             */
+
         }, {
             key: '_render_elements',
             value: function _render_elements() {
                 throw new Error('Method « _render_elements » should be implemented by the engine.');
             }
+
+            /**
+             * Update the label text with the given one.
+             * @abstract
+             * @param {String=}  label  New text content
+             * @private
+             */
+
         }, {
             key: '_update_label',
             value: function _update_label() {
@@ -233,19 +365,48 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
                 throw new Error('Method « _update_label » should be implemented by the engine.');
             }
+
+            /**
+             * Compute and then update the progression text.
+             * @abstract
+             * @private
+             */
+
         }, {
             key: '_update_progression',
             value: function _update_progression() {
                 throw new Error('Method « _update_progression » should be implemented by the engine.');
+            }
+        }, {
+            key: 'values',
+            get: function get() {
+                return this._values;
             }
         }]);
 
         return _class;
     }();
 
-    ProgressBar.EngineBootstrap = function (_ProgressBar$EngineIn) {
-        _inherits(_class2, _ProgressBar$EngineIn);
+    /**
+     * {@link http://getbootstrap.com|Bootstrap} rendering engine.
+     * @memberOf ModuleProgressBar
+     * @implements {ModuleProgressBar.EngineInterface}
+     */
+    ModuleProgressBar.EngineBootstrap = function (_ModuleProgressBar$En) {
+        _inherits(_class2, _ModuleProgressBar$En);
 
+        /**
+         * @param {HTMLElement}  $container                                     HTML element which contains the progress bar
+         * @param {Object=}      [options={}]                                   Configuration values
+         * @param {Boolean}      [options.label_visible=true]                   Display the label if `true`
+         * @param {Array}        [options.label_classes=['progressbar-label']]  Classes to attach to the label
+         * @param {String}       [options.label_position='top']                 Position of the label depending of the progress bar
+         * @param {String}       [options.progressbar_context='info']           The context, can also be `success`, `warning` or `danger`
+         * @param {String}       [options.progressbar_striped=false]            Display stripes if `true`
+         * @param {String}       [options.progressbar_animated=false]           Start an animation if `true`, requires `progressbar_striped` to be `true` too
+         * @param {String}       [options.progression_visible=true]             Display the progression if `true`
+         * @param {String}       [options.progression_format='{{progress}} %']  The progression format
+         */
         function _class2($container) {
             var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -267,18 +428,18 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }
 
         _createClass(_class2, [{
-            key: '_update_progression',
-            value: function _update_progression() {
-                var progression = this.compute_progression();
-                this._$progression.textContent = this.format_progression(progression);
-                this._$progressbar.style.width = progression + '%';
-            }
-        }, {
             key: '_update_label',
             value: function _update_label() {
                 var label = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
 
                 this._$label.textContent = label;
+            }
+        }, {
+            key: '_update_progression',
+            value: function _update_progression() {
+                var progression = this.compute_progression();
+                this._$progression.textContent = this.format_progression(this._options.progression_format, progression);
+                this._$progressbar.style.width = progression + '%';
             }
         }, {
             key: '_create_elements',
@@ -338,8 +499,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_handle_progressbar_value',
-            value: function _handle_progressbar_value(key, value) {
+            key: '_handle_value',
+            value: function _handle_value(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':
@@ -364,11 +525,26 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return _class2;
-    }(ProgressBar.EngineInterface);
+    }(ModuleProgressBar.EngineInterface);
 
-    ProgressBar.EngineHtml5 = function (_ProgressBar$EngineIn2) {
-        _inherits(_class3, _ProgressBar$EngineIn2);
+    /**
+     * HTML5 rendering engine.
+     * @memberOf ModuleProgressBar
+     * @implements {ModuleProgressBar.EngineInterface}
+     */
+    ModuleProgressBar.EngineHtml5 = function (_ModuleProgressBar$En2) {
+        _inherits(_class3, _ModuleProgressBar$En2);
 
+        /**
+         * @param {HTMLElement}  $container                                     HTML element which contains the progress bar
+         * @param {Object=}      [options={}]                                   Configuration values
+         * @param {Boolean}      [options.label_visible=true]                   Display the label if `true`
+         * @param {Array}        [options.label_classes=['progressbar-label']]  Classes to attach to the label
+         * @param {String}       [options.label_position='top']                 Position of the label depending of the progress bar
+         * @param {String}       [options.progression_visible=true]             Display the progression if `true`
+         * @param {String}       [options.progression_format='{{progress}} %']  The progression format
+         * @param {String}       [options.progression_position='right']         Position of the progression depending of the progress bar
+         */
         function _class3($container) {
             var options = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
@@ -388,14 +564,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }
 
         _createClass(_class3, [{
-            key: '_update_progression',
-            value: function _update_progression() {
-                this._$progression.textContent = this.format_progression(this.compute_progression());
-            }
-        }, {
             key: '_update_label',
             value: function _update_label(label) {
                 this._$label.textContent = label;
+            }
+        }, {
+            key: '_update_progression',
+            value: function _update_progression() {
+                var progression = this.compute_progression();
+                this._$progression.textContent = this.format_progression(this._options.progression_format, progression);
             }
         }, {
             key: '_create_elements',
@@ -443,8 +620,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                 }
             }
         }, {
-            key: '_handle_progressbar_value',
-            value: function _handle_progressbar_value(key, value) {
+            key: '_handle_value',
+            value: function _handle_value(key, value) {
                 switch (key) {
                     case 'min':
                     case 'max':
@@ -460,7 +637,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
                             this._$progressbar.removeAttribute('max');
                             this._$progressbar.removeAttribute('value');
                         } else {
-                            this.update_progressbar_values({
+                            this.update_values({
                                 'min': this._values.min,
                                 'max': this._values.max,
                                 'current': this._values.current
@@ -471,7 +648,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
         }]);
 
         return _class3;
-    }(ProgressBar.EngineInterface);
+    }(ModuleProgressBar.EngineInterface);
 
-    return ProgressBar;
+    return ModuleProgressBar;
 });
