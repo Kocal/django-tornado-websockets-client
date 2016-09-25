@@ -189,12 +189,10 @@
             let indeterminate = datas.indeterminate
 
             if (datas.indeterminate === false) {
-                // ???
-                // {min, max, value} = datas
-
+                // `{min, max, current} = datas` is not working xd
                 min = datas.min
                 max = datas.max
-                current = datas.value
+                current = datas.current
             }
 
             this.update_values({min, max, current, indeterminate})
@@ -207,7 +205,7 @@
          * @param  {Object}  datas  An object of datas.
          */
         on_update(datas) {
-            this.update_values({'current': datas.current})
+            this.update_values(datas)
             this._update_progression()
             this._update_label(datas.label)
         }
@@ -494,9 +492,7 @@
             case 'min':
             case 'max':
             case 'current':
-            case 'value':
                 if (key === 'current') key = 'value'
-
                 this._$progressbar.setAttribute(key, value)
                 break
             case 'indeterminate':
