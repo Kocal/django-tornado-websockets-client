@@ -47,6 +47,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
                 spyOn(tws, 'on')
 
+                tws.bind(myModule)
                 myModule.on('my_event', function () {})
 
                 expect(tws.on).toHaveBeenCalledWith('module_my_module_my_event', jasmine.any(Function))
