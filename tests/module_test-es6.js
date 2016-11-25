@@ -1,7 +1,7 @@
 define(window.__env__['dependencies'], function (TornadoWebSocket) {
     describe('TornadoWebSocket.Module', function () {
 
-        var MyModule = class extends TornadoWebSocket.Module {
+        class MyModule extends TornadoWebSocket.Module {
             constructor(prefix) {
                 super(prefix)
             }
@@ -15,7 +15,7 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
             })
 
             it('should be inherited by a sub class', function () {
-                var myModule = new MyModule('my_module')
+                let myModule = new MyModule('my_module')
 
                 expect(myModule._name).toBe('module_my_module')
             })
@@ -23,8 +23,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
         describe('on()', function () {
             it('should call tws.on() with a prefix', function () {
-                var tws = new TornadoWebSocket('path')
-                var myModule = new MyModule('my_module_')
+                let tws = new TornadoWebSocket('path')
+                let myModule = new MyModule('my_module_')
 
                 spyOn(tws, 'on')
 
@@ -37,8 +37,8 @@ define(window.__env__['dependencies'], function (TornadoWebSocket) {
 
         describe('emit()', function () {
             it('should call tws.emit() with a prefix', function () {
-                var tws = new TornadoWebSocket('path')
-                var myModule = new MyModule('my_module_')
+                let tws = new TornadoWebSocket('path')
+                let myModule = new MyModule('my_module_')
 
                 spyOn(tws, 'emit')
 
